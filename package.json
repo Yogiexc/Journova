@@ -1,0 +1,15 @@
+{
+  "name": "journova-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "db:generate": "npm run generate -w database",
+    "db:push": "npm run db:push -w database",
+    "dev:api": "npm run start:dev -w api",
+    "dev:web": "npm run dev -w web"
+  }
+}

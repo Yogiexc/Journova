@@ -1,0 +1,489 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ----------------------------------------------------------------------------
+// ENUMS
+// ----------------------------------------------------------------------------
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+  DEACTIVATED
+}
+
+enum ArticleStatus {
+  DRAFT
+  SUBMITTED
+  INITIAL_CHECK
+  UNDER_REVIEW
+  REVISION_REQUIRED
+  RESUBMITTED
+  ACCEPTED
+  REJECTED
+  COPYEDITING
+  PRODUCTION
+  SCHEDULED
+  PUBLISHED
+  WITHDRAWN
+}
+
+enum SubmissionStatus {
+  DRAFT
+  SUBMITTED
+  INITIAL_CHECK
+  UNDER_REVIEW
+  REVISION_REQUIRED
+  RESUBMITTED
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+enum IssueStatus {
+  DRAFT
+  OPEN
+  CLOSED
+  PUBLISHED
+}
+
+enum ReviewStatus {
+  INVITED
+  ACCEPTED
+  DECLINED
+  COMPLETED
+  EXPIRED
+  CANCELLED
+}
+
+enum Recommendation {
+  ACCEPT
+  MINOR_REVISION
+  MAJOR_REVISION
+  REJECT
+}
+
+// ----------------------------------------------------------------------------
+// IDENTITY
+// ----------------------------------------------------------------------------
+
+model User {
+  id            String   @id @default(uuid()) @db.Uuid
+  name          String   @db.VarChar(255)
+  email         String   @unique @db.VarChar(255)
+  password_hash String   @db.Text
+  avatar_url    String?  @db.Text
+  orcid         String?  @db.VarChar(50)
+  affiliation   String?  @db.VarChar(255)
+  status        UserStatus @default(ACTIVE)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  roles               UserRole[]
+  authorships         Author[]
+  submissions         Submission[]          @relation("SubmissionSubmittedBy")
+  submission_versions SubmissionVersion[]   @relation("VersionUploadedBy")
+  files_uploaded      File[]                @relation("FileUploadedBy")
+  review_assignments  ReviewAssignment[]    @relation("AssignedReviewer")
+  reviews_assigned_by ReviewAssignment[]    @relation("AssignedBy")
+  editorial_decisions EditorialDecision[]   @relation("EditorDecision")
+  notifications       Notification[]
+  audit_logs          AuditLog[]
+}
+
+model Role {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique @db.VarChar(50)
+  description String?    @db.Text
+  users       UserRole[]
+}
+
+model UserRole {
+  user_id    String   @db.Uuid
+  role_id    Int
+  created_at DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, role_id])
+}
+
+// ----------------------------------------------------------------------------
+// JOURNAL
+// ----------------------------------------------------------------------------
+
+model Journal {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(255)
+  slug        String   @unique @db.VarChar(100)
+  description String?  @db.Text
+  issn        String?  @db.VarChar(20)
+  eissn       String?  @db.VarChar(20)
+  publisher   String?  @db.VarChar(255)
+  email       String?  @db.VarChar(255)
+  website     String?  @db.VarChar(255)
+  doi_prefix  String?  @db.VarChar(50)
+  logo_url    String?  @db.Text
+  cover_url   String?  @db.Text
+  status      String   @default("ACTIVE") // active, inactive
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  settings      JournalSetting[]
+  volumes       Volume[]
+  issues        Issue[]
+  articles      Article[]
+  categories    Category[]
+  announcements Announcement[]
+}
+
+model JournalSetting {
+  id         String   @id @default(uuid()) @db.Uuid
+  journal_id String   @db.Uuid
+  key        String   @db.VarChar(100)
+  value      String   @db.Text
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  journal Journal @relation(fields: [journal_id], references: [id], onDelete: Cascade)
+
+  @@unique([journal_id, key])
+}
+
+model Volume {
+  id            String   @id @default(uuid()) @db.Uuid
+  journal_id    String   @db.Uuid
+  volume_number Int
+  year          Int
+  title         String?  @db.VarChar(255)
+  description   String?  @db.Text
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  journal Journal @relation(fields: [journal_id], references: [id], onDelete: Cascade)
+  issues  Issue[]
+
+  @@unique([journal_id, volume_number])
+}
+
+model Issue {
+  id            String      @id @default(uuid()) @db.Uuid
+  journal_id    String      @db.Uuid
+  volume_id     String      @db.Uuid
+  issue_number  Int
+  title         String?     @db.VarChar(255)
+  description   String?     @db.Text
+  month         Int?
+  year          Int
+  cover_file_id String?     @db.Uuid
+  status        IssueStatus @default(DRAFT)
+  published_at  DateTime?
+  created_at    DateTime    @default(now())
+  updated_at    DateTime    @updatedAt
+
+  journal      Journal               @relation(fields: [journal_id], references: [id], onDelete: Cascade)
+  volume       Volume                @relation(fields: [volume_id], references: [id], onDelete: Cascade)
+  cover_file   File?                 @relation(fields: [cover_file_id], references: [id], onDelete: SetNull)
+  articles     Article[]
+  publications PublicationRecord[]
+
+  @@unique([volume_id, issue_number])
+}
+
+model Announcement {
+  id           String    @id @default(uuid()) @db.Uuid
+  journal_id   String    @db.Uuid
+  title        String    @db.VarChar(255)
+  slug         String    @db.VarChar(255)
+  content      String    @db.Text
+  status       String    @default("DRAFT")
+  published_at DateTime?
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+
+  journal Journal @relation(fields: [journal_id], references: [id], onDelete: Cascade)
+}
+
+// ----------------------------------------------------------------------------
+// CONTENT
+// ----------------------------------------------------------------------------
+
+model Article {
+  id           String        @id @default(uuid()) @db.Uuid
+  journal_id   String        @db.Uuid
+  issue_id     String?       @db.Uuid
+  title        String        @db.Text
+  slug         String        @unique @db.VarChar(255)
+  abstract     String?       @db.Text
+  language     String        @default("en") @db.VarChar(10)
+  doi          String?       @unique @db.VarChar(255)
+  status       ArticleStatus @default(DRAFT)
+  page_start   Int?
+  page_end     Int?
+  received_at  DateTime?
+  accepted_at  DateTime?
+  published_at DateTime?
+  created_at   DateTime      @default(now())
+  updated_at   DateTime      @updatedAt
+
+  journal      Journal             @relation(fields: [journal_id], references: [id], onDelete: Cascade)
+  issue        Issue?              @relation(fields: [issue_id], references: [id], onDelete: SetNull)
+  authors      ArticleAuthor[]
+  categories   ArticleCategory[]
+  keywords     ArticleKeyword[]
+  references   Reference[]
+  submissions  Submission[]
+  publications PublicationRecord[]
+
+  @@index([slug])
+  @@index([doi])
+  @@index([status])
+  @@index([published_at])
+  @@index([journal_id])
+  @@index([issue_id])
+}
+
+model Author {
+  id          String   @id @default(uuid()) @db.Uuid
+  user_id     String?  @db.Uuid
+  full_name   String   @db.VarChar(255)
+  email       String?  @db.VarChar(255)
+  orcid       String?  @db.VarChar(50)
+  affiliation String?  @db.VarChar(255)
+  department  String?  @db.VarChar(255)
+  institution String?  @db.VarChar(255)
+  country     String?  @db.VarChar(100)
+  bio         String?  @db.Text
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  user     User?           @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  articles ArticleAuthor[]
+}
+
+model ArticleAuthor {
+  article_id       String  @db.Uuid
+  author_id        String  @db.Uuid
+  author_order     Int
+  is_corresponding Boolean @default(false)
+
+  article Article @relation(fields: [article_id], references: [id], onDelete: Cascade)
+  author  Author  @relation(fields: [author_id], references: [id], onDelete: Cascade)
+
+  @@id([article_id, author_id])
+}
+
+model Category {
+  id          String   @id @default(uuid()) @db.Uuid
+  journal_id  String   @db.Uuid
+  name        String   @db.VarChar(100)
+  slug        String   @db.VarChar(100)
+  description String?  @db.Text
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  journal  Journal           @relation(fields: [journal_id], references: [id], onDelete: Cascade)
+  articles ArticleCategory[]
+}
+
+model ArticleCategory {
+  article_id  String @db.Uuid
+  category_id String @db.Uuid
+
+  article  Article  @relation(fields: [article_id], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+
+  @@id([article_id, category_id])
+}
+
+model Keyword {
+  id   String @id @default(uuid()) @db.Uuid
+  name String @unique @db.VarChar(100)
+  slug String @unique @db.VarChar(100)
+
+  articles ArticleKeyword[]
+}
+
+model ArticleKeyword {
+  article_id String @db.Uuid
+  keyword_id String @db.Uuid
+
+  article Article @relation(fields: [article_id], references: [id], onDelete: Cascade)
+  keyword Keyword @relation(fields: [keyword_id], references: [id], onDelete: Cascade)
+
+  @@id([article_id, keyword_id])
+}
+
+model Reference {
+  id              String   @id @default(uuid()) @db.Uuid
+  article_id      String   @db.Uuid
+  reference_order Int
+  raw_text        String   @db.Text
+  title           String?  @db.Text
+  authors         String?  @db.Text
+  year            Int?
+  journal_name    String?  @db.VarChar(255)
+  doi             String?  @db.VarChar(255)
+  url             String?  @db.Text
+  created_at      DateTime @default(now())
+
+  article Article @relation(fields: [article_id], references: [id], onDelete: Cascade)
+}
+
+// ----------------------------------------------------------------------------
+// SUBMISSION & PEER REVIEW
+// ----------------------------------------------------------------------------
+
+model Submission {
+  id            String           @id @default(uuid()) @db.Uuid
+  article_id    String           @db.Uuid
+  submitted_by  String           @db.Uuid
+  status        SubmissionStatus @default(DRAFT)
+  current_round Int              @default(1)
+  submitted_at  DateTime?
+  updated_at    DateTime         @updatedAt
+
+  article             Article               @relation(fields: [article_id], references: [id], onDelete: Cascade)
+  submitter           User                  @relation("SubmissionSubmittedBy", fields: [submitted_by], references: [id], onDelete: Restrict)
+  versions            SubmissionVersion[]
+  review_assignments  ReviewAssignment[]
+  editorial_decisions EditorialDecision[]
+
+  @@index([status])
+  @@index([submitted_by])
+  @@index([article_id])
+}
+
+model SubmissionVersion {
+  id             String   @id @default(uuid()) @db.Uuid
+  submission_id  String   @db.Uuid
+  version_number Int
+  file_id        String   @db.Uuid
+  uploaded_by    String   @db.Uuid
+  notes          String?  @db.Text
+  created_at     DateTime @default(now())
+
+  submission Submission @relation(fields: [submission_id], references: [id], onDelete: Cascade)
+  file       File       @relation(fields: [file_id], references: [id], onDelete: Restrict)
+  uploader   User       @relation("VersionUploadedBy", fields: [uploaded_by], references: [id], onDelete: Restrict)
+
+  @@unique([submission_id, version_number])
+}
+
+model File {
+  id               String   @id @default(uuid()) @db.Uuid
+  storage_provider String   @db.VarChar(50)
+  storage_key      String   @db.VarChar(255)
+  original_name    String   @db.VarChar(255)
+  mime_type        String   @db.VarChar(100)
+  size             Int
+  checksum         String?  @db.VarChar(255)
+  uploaded_by      String   @db.Uuid
+  created_at       DateTime @default(now())
+
+  uploader             User                @relation("FileUploadedBy", fields: [uploaded_by], references: [id], onDelete: Restrict)
+  submission_versions  SubmissionVersion[]
+  issues_cover         Issue[]
+  publication_records  PublicationRecord[]
+}
+
+model ReviewAssignment {
+  id            String       @id @default(uuid()) @db.Uuid
+  submission_id String       @db.Uuid
+  reviewer_id   String       @db.Uuid
+  assigned_by   String       @db.Uuid
+  status        ReviewStatus @default(INVITED)
+  invited_at    DateTime     @default(now())
+  accepted_at   DateTime?
+  declined_at   DateTime?
+  due_date      DateTime?
+  created_at    DateTime     @default(now())
+
+  submission Submission @relation(fields: [submission_id], references: [id], onDelete: Cascade)
+  reviewer   User       @relation("AssignedReviewer", fields: [reviewer_id], references: [id], onDelete: Restrict)
+  assigner   User       @relation("AssignedBy", fields: [assigned_by], references: [id], onDelete: Restrict)
+  review     Review?
+
+  @@index([reviewer_id])
+  @@index([status])
+}
+
+model Review {
+  id                    String         @id @default(uuid()) @db.Uuid
+  assignment_id         String         @unique @db.Uuid
+  recommendation        Recommendation
+  comments              String?        @db.Text
+  confidential_comments String?        @db.Text
+  submitted_at          DateTime       @default(now())
+  created_at            DateTime       @default(now())
+  updated_at            DateTime       @updatedAt
+
+  assignment ReviewAssignment @relation(fields: [assignment_id], references: [id], onDelete: Cascade)
+}
+
+model EditorialDecision {
+  id            String          @id @default(uuid()) @db.Uuid
+  submission_id String          @db.Uuid
+  editor_id     String          @db.Uuid
+  decision      Recommendation
+  notes         String?         @db.Text
+  created_at    DateTime        @default(now())
+
+  submission Submission @relation(fields: [submission_id], references: [id], onDelete: Cascade)
+  editor     User       @relation("EditorDecision", fields: [editor_id], references: [id], onDelete: Restrict)
+}
+
+model PublicationRecord {
+  id           String   @id @default(uuid()) @db.Uuid
+  article_id   String   @db.Uuid
+  issue_id     String   @db.Uuid
+  file_id      String   @db.Uuid
+  version      Int
+  page_start   Int?
+  page_end     Int?
+  published_at DateTime @default(now())
+  created_at   DateTime @default(now())
+
+  article Article @relation(fields: [article_id], references: [id], onDelete: Restrict)
+  issue   Issue   @relation(fields: [issue_id], references: [id], onDelete: Restrict)
+  file    File    @relation(fields: [file_id], references: [id], onDelete: Restrict)
+}
+
+// ----------------------------------------------------------------------------
+// SYSTEM
+// ----------------------------------------------------------------------------
+
+model Notification {
+  id          String    @id @default(uuid()) @db.Uuid
+  user_id     String    @db.Uuid
+  type        String    @db.VarChar(50)
+  title       String    @db.VarChar(255)
+  message     String    @db.Text
+  entity_type String?   @db.VarChar(50)
+  entity_id   String?   @db.Uuid
+  read_at     DateTime?
+  created_at  DateTime  @default(now())
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  user_id     String?  @db.Uuid
+  action      String   @db.VarChar(100)
+  entity_type String   @db.VarChar(50)
+  entity_id   String   @db.Uuid
+  old_value   String?  @db.Text // JSON string or text representation
+  new_value   String?  @db.Text // JSON string or text representation
+  ip_address  String?  @db.VarChar(45)
+  user_agent  String?  @db.Text
+  created_at  DateTime @default(now())
+
+  user User? @relation(fields: [user_id], references: [id], onDelete: SetNull)
+}
