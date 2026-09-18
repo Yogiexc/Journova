@@ -8,9 +8,26 @@ import { JournalsModule } from './journals/journals.module.js';
 import { ArticlesModule } from './articles/articles.module.js';
 import { SubmissionsModule } from './submissions/submissions.module.js';
 import { ReviewsModule } from './reviews/reviews.module.js';
+import { HealthModule } from './health/health.module.js';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { IssuesModule } from './issues/issues.module.js';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UsersModule, JournalsModule, ArticlesModule, SubmissionsModule, ReviewsModule],
+  imports: [
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 10, // Max 10 requests per minute by default
+    }]),
+    PrismaModule,
+    AuthModule,
+    UsersModule,
+    JournalsModule,
+    ArticlesModule,
+    SubmissionsModule,
+    ReviewsModule,
+    HealthModule,
+    IssuesModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
