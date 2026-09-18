@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
-import * as bcrypt from 'bcrypt';
+import * as argon2 from 'argon2';
 import { User, Prisma } from '@prisma/client';
 
 @Injectable()
@@ -8,8 +8,7 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async create(data: Prisma.UserCreateInput): Promise<User> {
-    const salt = await bcrypt.genSalt();
-    const hash = await bcrypt.hash(data.password_hash, salt);
+    const hash = await argon2.hash(data.password_hash);
     
     return this.prisma.user.create({
       data: {
@@ -41,8 +40,7 @@ export class UsersService {
 
   async update(id: string, data: Prisma.UserUpdateInput): Promise<User> {
     if (data.password_hash) {
-      const salt = await bcrypt.genSalt();
-      data.password_hash = await bcrypt.hash(data.password_hash as string, salt);
+      data.password_hash = await argon2.hash(data.password_hash as string);
     }
     return this.prisma.user.update({
       where: { id },
@@ -51,7 +49,6 @@ export class UsersService {
   }
 
   async remove(id: string): Promise<User> {
-    // Instead of hard delete, maybe deactivate according to the blueprint.
     return this.prisma.user.update({
       where: { id },
       data: { status: 'DEACTIVATED' },

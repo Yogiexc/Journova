@@ -45,6 +45,12 @@ enum SubmissionStatus {
   WITHDRAWN
 }
 
+enum SubmissionRoundStatus {
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
 enum IssueStatus {
   DRAFT
   OPEN
@@ -94,6 +100,7 @@ model User {
   editorial_decisions EditorialDecision[]   @relation("EditorDecision")
   notifications       Notification[]
   audit_logs          AuditLog[]
+  refresh_tokens      RefreshToken[]
 }
 
 model Role {
@@ -112,6 +119,20 @@ model UserRole {
   role Role @relation(fields: [role_id], references: [id], onDelete: Cascade)
 
   @@id([user_id, role_id])
+}
+
+model RefreshToken {
+  id           String    @id @default(uuid()) @db.Uuid
+  user_id      String    @db.Uuid
+  token_hash   String    @db.Text
+  expires_at   DateTime
+  revoked_at   DateTime?
+  created_at   DateTime  @default(now())
+  last_used_at DateTime  @default(now())
+  
+  user         User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
 }
 
 // ----------------------------------------------------------------------------
@@ -345,35 +366,48 @@ model Submission {
   article_id    String           @db.Uuid
   submitted_by  String           @db.Uuid
   status        SubmissionStatus @default(DRAFT)
-  current_round Int              @default(1)
   submitted_at  DateTime?
   updated_at    DateTime         @updatedAt
 
   article             Article               @relation(fields: [article_id], references: [id], onDelete: Cascade)
   submitter           User                  @relation("SubmissionSubmittedBy", fields: [submitted_by], references: [id], onDelete: Restrict)
-  versions            SubmissionVersion[]
-  review_assignments  ReviewAssignment[]
-  editorial_decisions EditorialDecision[]
+  rounds              SubmissionRound[]
 
   @@index([status])
   @@index([submitted_by])
   @@index([article_id])
 }
 
+model SubmissionRound {
+  id            String                @id @default(uuid()) @db.Uuid
+  submission_id String                @db.Uuid
+  round_number  Int
+  status        SubmissionRoundStatus @default(IN_PROGRESS)
+  created_at    DateTime              @default(now())
+  updated_at    DateTime              @updatedAt
+
+  submission          Submission          @relation(fields: [submission_id], references: [id], onDelete: Cascade)
+  versions            SubmissionVersion[]
+  review_assignments  ReviewAssignment[]
+  editorial_decisions EditorialDecision[]
+
+  @@unique([submission_id, round_number])
+}
+
 model SubmissionVersion {
   id             String   @id @default(uuid()) @db.Uuid
-  submission_id  String   @db.Uuid
+  round_id       String   @db.Uuid
   version_number Int
   file_id        String   @db.Uuid
   uploaded_by    String   @db.Uuid
   notes          String?  @db.Text
   created_at     DateTime @default(now())
 
-  submission Submission @relation(fields: [submission_id], references: [id], onDelete: Cascade)
-  file       File       @relation(fields: [file_id], references: [id], onDelete: Restrict)
-  uploader   User       @relation("VersionUploadedBy", fields: [uploaded_by], references: [id], onDelete: Restrict)
+  round      SubmissionRound @relation(fields: [round_id], references: [id], onDelete: Cascade)
+  file       File            @relation(fields: [file_id], references: [id], onDelete: Restrict)
+  uploader   User            @relation("VersionUploadedBy", fields: [uploaded_by], references: [id], onDelete: Restrict)
 
-  @@unique([submission_id, version_number])
+  @@unique([round_id, version_number])
 }
 
 model File {
@@ -395,7 +429,7 @@ model File {
 
 model ReviewAssignment {
   id            String       @id @default(uuid()) @db.Uuid
-  submission_id String       @db.Uuid
+  round_id      String       @db.Uuid
   reviewer_id   String       @db.Uuid
   assigned_by   String       @db.Uuid
   status        ReviewStatus @default(INVITED)
@@ -405,9 +439,9 @@ model ReviewAssignment {
   due_date      DateTime?
   created_at    DateTime     @default(now())
 
-  submission Submission @relation(fields: [submission_id], references: [id], onDelete: Cascade)
-  reviewer   User       @relation("AssignedReviewer", fields: [reviewer_id], references: [id], onDelete: Restrict)
-  assigner   User       @relation("AssignedBy", fields: [assigned_by], references: [id], onDelete: Restrict)
+  round      SubmissionRound @relation(fields: [round_id], references: [id], onDelete: Cascade)
+  reviewer   User            @relation("AssignedReviewer", fields: [reviewer_id], references: [id], onDelete: Restrict)
+  assigner   User            @relation("AssignedBy", fields: [assigned_by], references: [id], onDelete: Restrict)
   review     Review?
 
   @@index([reviewer_id])
@@ -429,14 +463,14 @@ model Review {
 
 model EditorialDecision {
   id            String          @id @default(uuid()) @db.Uuid
-  submission_id String          @db.Uuid
+  round_id      String          @db.Uuid
   editor_id     String          @db.Uuid
   decision      Recommendation
   notes         String?         @db.Text
   created_at    DateTime        @default(now())
 
-  submission Submission @relation(fields: [submission_id], references: [id], onDelete: Cascade)
-  editor     User       @relation("EditorDecision", fields: [editor_id], references: [id], onDelete: Restrict)
+  round      SubmissionRound @relation(fields: [round_id], references: [id], onDelete: Cascade)
+  editor     User            @relation("EditorDecision", fields: [editor_id], references: [id], onDelete: Restrict)
 }
 
 model PublicationRecord {
