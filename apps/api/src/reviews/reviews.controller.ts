@@ -1,34 +1,35 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Request } from '@nestjs/common';
 import { ReviewsService } from './reviews.service.js';
-import { CreateReviewDto } from './dto/create-review.dto.js';
-import { UpdateReviewDto } from './dto/update-review.dto.js';
+import { SubmitReviewDto } from './dto/submit-review.dto.js';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
 
-@Controller('reviews')
+@Controller('api/v1/reviews')
+@UseGuards(JwtAuthGuard)
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
-  @Post()
-  create(@Body() createReviewDto: CreateReviewDto) {
-    return this.reviewsService.create(createReviewDto);
+  @Get('assignments')
+  findAllAssignments(@Request() req: any) {
+    return this.reviewsService.findAll(req.user.id);
   }
 
-  @Get()
-  findAll() {
-    return this.reviewsService.findAll();
+  @Get('assignments/:id')
+  findOneAssignment(@Request() req: any, @Param('id') id: string) {
+    return this.reviewsService.findOne(req.user.id, id);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.reviewsService.findOne(+id);
+  @Post('assignments/:id/accept')
+  acceptAssignment(@Request() req: any, @Param('id') id: string) {
+    return this.reviewsService.accept(req.user.id, id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto) {
-    return this.reviewsService.update(+id, updateReviewDto);
+  @Post('assignments/:id/decline')
+  declineAssignment(@Request() req: any, @Param('id') id: string) {
+    return this.reviewsService.decline(req.user.id, id);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.reviewsService.remove(+id);
+  @Post('assignments/:id/submit')
+  submitReview(@Request() req: any, @Param('id') id: string, @Body() submitReviewDto: SubmitReviewDto) {
+    return this.reviewsService.submitReview(req.user.id, id, submitReviewDto);
   }
 }
