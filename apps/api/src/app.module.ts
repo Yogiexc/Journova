@@ -11,6 +11,7 @@ import { ReviewsModule } from './reviews/reviews.module.js';
 import { HealthModule } from './health/health.module.js';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { IssuesModule } from './issues/issues.module.js';
+import { EditorModule } from './editor/editor.module.js';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { IssuesModule } from './issues/issues.module.js';
     ReviewsModule,
     HealthModule,
     IssuesModule,
+    EditorModule,
   ],
   controllers: [AppController],
   providers: [AppService],
