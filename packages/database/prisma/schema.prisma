@@ -446,6 +446,7 @@ model ReviewAssignment {
 
   @@index([reviewer_id])
   @@index([status])
+  @@unique([round_id, reviewer_id])
 }
 
 model Review {
