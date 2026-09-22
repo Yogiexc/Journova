@@ -80,6 +80,13 @@ enum EditorialFileStage {
   PRODUCTION
 }
 
+enum DoiDepositStatus {
+  PENDING
+  SUBMITTED
+  SUCCESS
+  FAILED
+}
+
 // ----------------------------------------------------------------------------
 // IDENTITY
 // ----------------------------------------------------------------------------
@@ -269,6 +276,7 @@ model Article {
   submissions  Submission[]
   publications PublicationRecord[]
   editorial_files EditorialFile[]
+  doi_deposits DoiDeposit[]
 
   @@index([slug])
   @@index([doi])
@@ -512,6 +520,19 @@ model EditorialFile {
   article         Article            @relation(fields: [article_id], references: [id], onDelete: Cascade)
   file            File               @relation(fields: [file_id], references: [id], onDelete: Restrict)
   uploader        User               @relation(fields: [uploaded_by], references: [id], onDelete: Restrict)
+}
+
+model DoiDeposit {
+  id           String           @id @default(uuid()) @db.Uuid
+  article_id   String           @db.Uuid
+  batch_id     String?          @db.VarChar(100)
+  status       DoiDepositStatus @default(PENDING)
+  xml_payload  String           @db.Text
+  error_msg    String?          @db.Text
+  created_at   DateTime         @default(now())
+  updated_at   DateTime         @updatedAt
+
+  article Article @relation(fields: [article_id], references: [id], onDelete: Cascade)
 }
 
 // ----------------------------------------------------------------------------
