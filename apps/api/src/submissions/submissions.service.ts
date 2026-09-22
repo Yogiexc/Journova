@@ -160,7 +160,8 @@ export class SubmissionsService {
       where: { id: submissionId, submitted_by: userId },
       include: {
         rounds: {
-          where: { round_number: 1 }
+          orderBy: { round_number: 'desc' },
+          take: 1
         }
       }
     });
@@ -172,7 +173,21 @@ export class SubmissionsService {
       });
     }
 
-    const roundId = submission.rounds[0]?.id;
+    let roundId = submission.rounds[0]?.id;
+    let roundNumber = submission.rounds[0]?.round_number || 1;
+    
+    // If the latest round is COMPLETED (e.g. from a revision decision), create a new round for the resubmission
+    if (submission.rounds[0]?.status === 'COMPLETED') {
+      const newRound = await this.prisma.submissionRound.create({
+        data: {
+          submission_id: submission.id,
+          round_number: roundNumber + 1,
+          status: 'IN_PROGRESS',
+        }
+      });
+      roundId = newRound.id;
+    }
+
     if (!roundId) {
       throw new BadRequestException('No active round found for this submission.');
     }
@@ -190,7 +205,7 @@ export class SubmissionsService {
         }
       });
 
-      // Find highest version number
+      // Find highest version number in this round
       const existingVersions = await tx.submissionVersion.findMany({
         where: { round_id: roundId },
         orderBy: { version_number: 'desc' },
@@ -234,10 +249,10 @@ export class SubmissionsService {
       });
     }
 
-    if (submission.status !== 'DRAFT') {
+    if (submission.status !== 'DRAFT' && submission.status !== 'REVISION_REQUIRED') {
       throw new BadRequestException({
         success: false,
-        error: { code: 'INVALID_STATUS', message: 'Only DRAFT submissions can be submitted.' }
+        error: { code: 'INVALID_STATUS', message: 'Only DRAFT or REVISION_REQUIRED submissions can be submitted.' }
       });
     }
 
@@ -250,22 +265,24 @@ export class SubmissionsService {
       });
     }
 
+    const newStatus = submission.status === 'REVISION_REQUIRED' ? 'UNDER_REVIEW' : 'SUBMITTED';
+
     // 3. Atomically update both Submission and Article statuses using a transaction
     await this.prisma.$transaction(async (tx) => {
       await tx.submission.update({
         where: { id: submissionId },
         data: { 
-          status: 'SUBMITTED',
-          submitted_at: new Date()
+          status: newStatus,
+          submitted_at: new Date() // Will update every time they submit, maybe we only want to set it once, but it's fine for now
         }
       });
 
       await tx.article.update({
         where: { id: submission.article_id },
-        data: { status: 'SUBMITTED' }
+        data: { status: newStatus }
       });
     });
 
-    return { success: true, message: 'Submission successfully submitted.' };
+    return { success: true, message: `Submission successfully updated to ${newStatus}.` };
   }
 }
