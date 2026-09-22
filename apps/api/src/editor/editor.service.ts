@@ -20,6 +20,26 @@ export class EditorService {
     return { success: true, data: submissions };
   }
 
+  async getReviewers() {
+    const reviewers = await this.prisma.user.findMany({
+      where: {
+        roles: {
+          some: {
+            role: {
+              name: 'REVIEWER',
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
+    });
+    return { success: true, data: reviewers };
+  }
+
   async findOne(id: string) {
     const submission = await this.prisma.submission.findUnique({
       where: { id },
