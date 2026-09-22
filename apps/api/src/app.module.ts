@@ -13,6 +13,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { IssuesModule } from './issues/issues.module.js';
 import { EditorModule } from './editor/editor.module.js';
 import { PublicationsModule } from './publications/publications.module.js';
+import { DoiModule } from './doi/doi.module.js';
 
 @Module({
   imports: [
