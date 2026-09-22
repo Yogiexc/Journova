@@ -1,4 +1,5 @@
-import { Controller, Get, Query, Param } from '@nestjs/common';
+import { Controller, Get, Query, Param, Res, StreamableFile } from '@nestjs/common';
+import type { Response } from 'express';
 import { ArticlesService } from './articles.service.js';
 import { ArticleQueryDto } from './dto/article-query.dto.js';
 
@@ -14,5 +15,20 @@ export class ArticlesController {
   @Get(':slug')
   findOne(@Param('slug') slug: string) {
     return this.articlesService.findOneBySlug(slug);
+  }
+
+  @Get(':slug/pdf')
+  async getPdf(
+    @Param('slug') slug: string,
+    @Res({ passthrough: true }) res: Response
+  ): Promise<StreamableFile> {
+    const fileStream = await this.articlesService.downloadPdf(slug);
+    
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `inline; filename="${slug}.pdf"`,
+    });
+    
+    return fileStream;
   }
 }

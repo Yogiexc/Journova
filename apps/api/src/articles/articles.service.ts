@@ -1,4 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ArticleQueryDto } from './dto/article-query.dto.js';
 import { Prisma } from '@prisma/client';
@@ -204,5 +206,54 @@ export class ArticlesService {
       success: true,
       data: formattedData
     };
+  }
+
+  async downloadPdf(slug: string): Promise<StreamableFile> {
+    const article = await this.prisma.article.findFirst({
+      where: {
+        slug,
+        status: 'PUBLISHED',
+        issue: {
+          status: 'PUBLISHED',
+        },
+      },
+      include: {
+        publications: {
+          include: {
+            file: true,
+          }
+        }
+      }
+    });
+
+    if (!article) {
+      throw new NotFoundException('Article not found or not published');
+    }
+
+    if (!article.publications || article.publications.length === 0) {
+      throw new NotFoundException('Publication record not found');
+    }
+
+    const pubRecord = article.publications[0];
+    const fileRecord = pubRecord.file;
+
+    if (!fileRecord || fileRecord.storage_provider !== 'local' || !fileRecord.storage_key) {
+      throw new NotFoundException('PDF file is missing or not locally stored');
+    }
+
+    // Path traversal protection
+    if (fileRecord.storage_key.includes('..')) {
+      throw new NotFoundException('Invalid file path');
+    }
+
+    const uploadDir = path.join(process.cwd(), 'uploads');
+    const filePath = path.join(uploadDir, fileRecord.storage_key);
+
+    if (!fs.existsSync(filePath)) {
+      throw new NotFoundException('Physical PDF file not found on server');
+    }
+
+    const fileStream = fs.createReadStream(filePath);
+    return new StreamableFile(fileStream);
   }
 }
