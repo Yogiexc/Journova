@@ -12,7 +12,7 @@ export function ArticleCard({ article }: { article: Article }) {
       </Link>
       
       <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 font-serif">
-        {article.authors.map(a => a.name).join(', ')}
+        {article.authors?.map((a: any) => a.author?.full_name || a.name).join(', ')}
       </p>
       
       <p className="text-sm text-slate-500 line-clamp-2 mb-4 leading-relaxed">
@@ -27,7 +27,7 @@ export function ArticleCard({ article }: { article: Article }) {
           <span>DOI: {article.doi.split('/')[1]}</span>
         </div>
         <div className="flex gap-4">
-          <span>{new Date(article.publishDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+          <span>{new Date(article.published_at || article.publishDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
         </div>
       </div>
     </article>

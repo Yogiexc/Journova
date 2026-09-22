@@ -2,10 +2,31 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArticleCard } from '@/components/articles/ArticleCard';
-import { MOCK_ARTICLES } from '@/data/articles';
 import { Search, Filter } from 'lucide-react';
 
-export default function ArticleDirectoryPage() {
+async function getArticles(searchParams: any) {
+  const query = new URLSearchParams();
+  if (searchParams.page) query.append('page', searchParams.page);
+  if (searchParams.search) query.append('search', searchParams.search);
+  if (searchParams.year) query.append('year', searchParams.year);
+  if (searchParams.sort) query.append('sort', searchParams.sort);
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/articles?${query.toString()}`, {
+      next: { revalidate: 60 }
+    });
+    if (!res.ok) return { data: [], meta: { total: 0, total_pages: 0, page: 1 } };
+    const json = await res.json();
+    return json;
+  } catch (error) {
+    console.error("Failed to fetch articles", error);
+    return { data: [], meta: { total: 0, total_pages: 0, page: 1 } };
+  }
+}
+
+export default async function ArticleDirectoryPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+  const { data: articles, meta } = await getArticles(searchParams);
+
   return (
     <div className="container mx-auto px-4 md:px-8 py-12 max-w-5xl">
       <div className="mb-12 border-b border-slate-200 dark:border-slate-800 pb-8">
@@ -58,29 +79,33 @@ export default function ArticleDirectoryPage() {
         {/* Article List */}
         <div className="md:col-span-3">
           <div className="flex justify-between items-center mb-6">
-            <span className="text-sm text-slate-500 font-medium">{MOCK_ARTICLES.length} results found</span>
+            <span className="text-sm text-slate-500 font-medium">{meta?.total || 0} results found</span>
             <select className="border border-slate-300 dark:border-slate-700 rounded-md text-sm px-3 py-1.5 bg-white dark:bg-slate-900">
               <option>Sort by: Newest</option>
-              <option>Sort by: Most Cited</option>
-              <option>Sort by: Most Viewed</option>
+              <option>Sort by: Oldest</option>
+              <option>Sort by: Title</option>
             </select>
           </div>
 
           <div className="space-y-2">
-            {MOCK_ARTICLES.map(article => (
-              <ArticleCard key={article.id} article={article} />
-            ))}
+            {articles?.length > 0 ? (
+              articles.map((article: any) => (
+                <ArticleCard key={article.id} article={article} />
+              ))
+            ) : (
+              <div className="py-12 text-center text-slate-500">No articles found.</div>
+            )}
           </div>
 
-          <div className="mt-12 flex justify-center">
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" disabled>Previous</Button>
-              <Button variant="outline" size="sm" className="bg-slate-100 dark:bg-slate-800">1</Button>
-              <Button variant="outline" size="sm">2</Button>
-              <Button variant="outline" size="sm">3</Button>
-              <Button variant="outline" size="sm">Next</Button>
+          {meta?.total_pages > 1 && (
+            <div className="mt-12 flex justify-center">
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" disabled={meta.page <= 1}>Previous</Button>
+                <Button variant="outline" size="sm" className="bg-slate-100 dark:bg-slate-800">{meta.page}</Button>
+                <Button variant="outline" size="sm" disabled={meta.page >= meta.total_pages}>Next</Button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
