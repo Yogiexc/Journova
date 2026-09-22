@@ -63,6 +63,28 @@ export class IssuesService {
     };
   }
 
+  async findEditorIssues() {
+    const issues = await this.prisma.issue.findMany({
+      orderBy: { year: 'desc' },
+      include: {
+        volume: {
+          select: { volume_number: true, year: true }
+        },
+        _count: {
+          select: { articles: true }
+        }
+      }
+    });
+
+    const data = issues.map(issue => ({
+      ...issue,
+      article_count: issue._count.articles,
+      _count: undefined,
+    }));
+
+    return { success: true, data };
+  }
+
   async findLatest() {
     const issue = await this.prisma.issue.findFirst({
       where: { status: 'PUBLISHED' },
@@ -166,5 +188,58 @@ export class IssuesService {
     }
 
     return { success: true, data: issue };
+  }
+
+  async publishIssue(id: string) {
+    const issue = await this.prisma.issue.findUnique({
+      where: { id },
+      include: {
+        articles: {
+          include: { publications: true }
+        }
+      }
+    });
+
+    if (!issue) throw new NotFoundException('Issue not found');
+    if (issue.status === 'PUBLISHED') throw new Error('Issue is already published');
+
+    // Validate articles
+    for (const article of issue.articles) {
+      if (article.status !== 'SCHEDULED') {
+        throw new Error(`Cannot publish issue: Article ${article.id} is in status ${article.status} (must be SCHEDULED)`);
+      }
+      if (!article.publications || article.publications.length === 0) {
+        throw new Error(`Cannot publish issue: Article ${article.id} has no PublicationRecord`);
+      }
+      if (!article.page_start || !article.page_end) {
+        throw new Error(`Cannot publish issue: Article ${article.id} is missing page numbers`);
+      }
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const publishedAt = new Date();
+
+      // Publish issue
+      await tx.issue.update({
+        where: { id },
+        data: {
+          status: 'PUBLISHED',
+          published_at: publishedAt
+        }
+      });
+
+      // Publish scheduled articles
+      for (const article of issue.articles) {
+        await tx.article.update({
+          where: { id: article.id },
+          data: {
+            status: 'PUBLISHED',
+            published_at: publishedAt
+          }
+        });
+      }
+
+      return { success: true, message: 'Issue and its articles successfully published' };
+    });
   }
 }
