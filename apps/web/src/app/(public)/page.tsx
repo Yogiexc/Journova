@@ -3,7 +3,8 @@ import { ArticleCard } from '@/components/articles/ArticleCard';
 
 async function getLatestArticles() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/articles?limit=3`, {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+    const res = await fetch(`${apiUrl}/articles?limit=3`, {
       next: { revalidate: 60 }
     });
     if (!res.ok) return [];
@@ -17,7 +18,8 @@ async function getLatestArticles() {
 
 async function getLatestIssue() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/issues`, {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+    const res = await fetch(`${apiUrl}/issues`, {
       next: { revalidate: 60 }
     });
     if (!res.ok) return null;

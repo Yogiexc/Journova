@@ -12,7 +12,8 @@ async function getArticles(searchParams: any) {
   if (searchParams.sort) query.append('sort', searchParams.sort);
 
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/articles?${query.toString()}`, {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+    const res = await fetch(`${apiUrl}/articles?${query.toString()}`, {
       next: { revalidate: 60 }
     });
     if (!res.ok) return { data: [], meta: { total: 0, total_pages: 0, page: 1 } };

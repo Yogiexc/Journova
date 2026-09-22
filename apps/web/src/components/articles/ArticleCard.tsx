@@ -24,7 +24,7 @@ export function ArticleCard({ article }: { article: Article }) {
           <Badge variant="outline" className="font-normal text-[10px] uppercase tracking-wider text-slate-500">
             Open Access
           </Badge>
-          <span>DOI: {article.doi.split('/')[1]}</span>
+          <span>DOI: {article.doi ? article.doi.split('/')[1] : 'Not assigned yet'}</span>
         </div>
         <div className="flex gap-4">
           <span>{new Date(article.published_at || article.publishDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>

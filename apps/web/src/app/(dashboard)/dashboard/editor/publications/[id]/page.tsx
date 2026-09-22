@@ -233,6 +233,54 @@ export default function EditorPublicationDetailPage({ params }: { params: { id: 
                   This article is scheduled. Publish the Issue to make it public.
                 </div>
               )}
+
+              {article.status === 'PUBLISHED' && (
+                <div className="pt-2 border-t border-slate-100 space-y-3">
+                  <h4 className="text-sm font-medium">DOI Registration</h4>
+                  {article.doi_deposits && article.doi_deposits.length > 0 ? (
+                    <div className="text-sm p-3 border rounded-md border-slate-200 bg-white">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-slate-500">Status:</span>
+                        <Badge variant="outline" className={
+                          article.doi_deposits[0].status === 'SUCCESS' ? 'text-emerald-700 bg-emerald-50' : 
+                          article.doi_deposits[0].status === 'FAILED' ? 'text-red-700 bg-red-50' : 
+                          'text-amber-700 bg-amber-50'
+                        }>
+                          {article.doi_deposits[0].status}
+                        </Badge>
+                      </div>
+                      {article.doi_deposits[0].status === 'SUCCESS' && (
+                        <p className="mt-2 font-mono text-xs text-slate-600 truncate">{article.doi}</p>
+                      )}
+                      {article.doi_deposits[0].status === 'FAILED' && (
+                        <div className="mt-2">
+                          <p className="text-xs text-red-600 mb-2">{article.doi_deposits[0].error_msg}</p>
+                          <Button size="sm" variant="outline" className="w-full text-red-700 border-red-200 hover:bg-red-50" onClick={async () => {
+                            try {
+                              await fetchApi(`/api/v1/doi/${params.id}/retry`, { method: 'POST' });
+                              alert('Retry initiated. Please refresh shortly.');
+                            } catch (e: any) { alert(e.message); }
+                          }}>
+                            Retry Registration
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-slate-500 text-center p-3 border rounded-md">
+                      No DOI registration attempts yet.
+                      <Button size="sm" variant="outline" className="w-full mt-2" onClick={async () => {
+                            try {
+                              await fetchApi(`/api/v1/doi/${params.id}/retry`, { method: 'POST' });
+                              alert('Registration initiated.');
+                            } catch (e: any) { alert(e.message); }
+                          }}>
+                        Register DOI Now
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
