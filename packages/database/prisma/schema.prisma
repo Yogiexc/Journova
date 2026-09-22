@@ -74,6 +74,12 @@ enum Recommendation {
   REJECT
 }
 
+enum EditorialFileStage {
+  COPYEDIT
+  PROOF
+  PRODUCTION
+}
+
 // ----------------------------------------------------------------------------
 // IDENTITY
 // ----------------------------------------------------------------------------
@@ -98,6 +104,7 @@ model User {
   review_assignments  ReviewAssignment[]    @relation("AssignedReviewer")
   reviews_assigned_by ReviewAssignment[]    @relation("AssignedBy")
   editorial_decisions EditorialDecision[]   @relation("EditorDecision")
+  editorial_files     EditorialFile[]
   notifications       Notification[]
   audit_logs          AuditLog[]
   refresh_tokens      RefreshToken[]
@@ -261,6 +268,7 @@ model Article {
   references   Reference[]
   submissions  Submission[]
   publications PublicationRecord[]
+  editorial_files EditorialFile[]
 
   @@index([slug])
   @@index([doi])
@@ -425,6 +433,7 @@ model File {
   submission_versions  SubmissionVersion[]
   issues_cover         Issue[]
   publication_records  PublicationRecord[]
+  editorial_files      EditorialFile[]
 }
 
 model ReviewAssignment {
@@ -488,6 +497,21 @@ model PublicationRecord {
   article Article @relation(fields: [article_id], references: [id], onDelete: Restrict)
   issue   Issue   @relation(fields: [issue_id], references: [id], onDelete: Restrict)
   file    File    @relation(fields: [file_id], references: [id], onDelete: Restrict)
+}
+
+model EditorialFile {
+  id              String             @id @default(uuid()) @db.Uuid
+  article_id      String             @db.Uuid
+  uploaded_by     String             @db.Uuid
+  stage           EditorialFileStage
+  file_id         String             @db.Uuid
+  version         Int
+  notes           String?            @db.Text
+  created_at      DateTime           @default(now())
+
+  article         Article            @relation(fields: [article_id], references: [id], onDelete: Cascade)
+  file            File               @relation(fields: [file_id], references: [id], onDelete: Restrict)
+  uploader        User               @relation(fields: [uploaded_by], references: [id], onDelete: Restrict)
 }
 
 // ----------------------------------------------------------------------------
