@@ -18,6 +18,11 @@ export class EditorController {
     return this.editorService.findAll();
   }
 
+  @Get('reviewers')
+  getReviewers() {
+    return this.editorService.getReviewers();
+  }
+
   @Get('submissions/:id')
   findOne(@Param('id') id: string) {
     return this.editorService.findOne(id);

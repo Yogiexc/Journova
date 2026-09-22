@@ -12,6 +12,7 @@ import { HealthModule } from './health/health.module.js';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { IssuesModule } from './issues/issues.module.js';
 import { EditorModule } from './editor/editor.module.js';
+import { PublicationsModule } from './publications/publications.module.js';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { EditorModule } from './editor/editor.module.js';
     HealthModule,
     IssuesModule,
     EditorModule,
+    PublicationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
