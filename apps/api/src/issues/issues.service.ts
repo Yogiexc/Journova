@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { PaginationDto } from '../common/dto/pagination.dto.js';
+import { DoiService } from '../doi/doi.service.js';
 
 @Injectable()
 export class IssuesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly doiService: DoiService
+  ) {}
 
   async findPublished(query: PaginationDto) {
     const { page = 1, limit = 10 } = query;
@@ -216,7 +220,7 @@ export class IssuesService {
       }
     }
 
-    return this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       const publishedAt = new Date();
 
       // Publish issue
@@ -241,5 +245,14 @@ export class IssuesService {
 
       return { success: true, message: 'Issue and its articles successfully published' };
     });
+
+    // Asynchronously trigger DOI registration for each published article
+    for (const article of issue.articles) {
+      this.doiService.depositDoi(article.id).catch(err => {
+        console.error(`Failed to trigger DOI deposit for article ${article.id}:`, err);
+      });
+    }
+
+    return result;
   }
 }

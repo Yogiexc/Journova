@@ -1,4 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as crypto from 'crypto';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ArticleStatus, EditorialFileStage } from '@prisma/client';
 import { ScheduleArticleDto } from './dto/publication.dto.js';
@@ -48,6 +51,9 @@ export class PublicationsService {
         },
         publications: {
           include: { file: true }
+        },
+        doi_deposits: {
+          orderBy: { created_at: 'desc' }
         }
       }
     });
@@ -89,6 +95,34 @@ export class PublicationsService {
       throw new BadRequestException('Can only upload production files when article is PRODUCTION');
     }
 
+    // Validations
+    if (!fileData || fileData.size === 0) {
+      throw new BadRequestException('File is empty');
+    }
+    if (fileData.mimetype !== 'application/pdf') {
+      throw new BadRequestException('Only PDF files are allowed');
+    }
+    
+    // Check magic bytes (%PDF-)
+    if (fileData.buffer.length < 5) {
+      throw new BadRequestException('Invalid file content');
+    }
+    const magicBytes = fileData.buffer.toString('utf8', 0, 5);
+    if (magicBytes !== '%PDF-') {
+      throw new BadRequestException('File is not a valid PDF');
+    }
+
+    const uniqueSuffix = crypto.randomUUID();
+    const storageKey = `articles/${articleId}/${stage.toLowerCase()}-${uniqueSuffix}.pdf`;
+    const uploadDir = path.join(process.cwd(), 'uploads');
+    const filePath = path.join(uploadDir, storageKey);
+    
+    // Ensure directory exists securely
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    
+    // Write physical file
+    fs.writeFileSync(filePath, fileData.buffer);
+
     // Determine version number
     const existingFiles = await this.prisma.editorialFile.findMany({
       where: { article_id: articleId, stage }
@@ -96,15 +130,14 @@ export class PublicationsService {
     const version = existingFiles.length + 1;
 
     // Create file record
-    // Mocking file upload in MVP logic
     return this.prisma.$transaction(async (tx: any) => {
       const file = await tx.file.create({
         data: {
-          storage_provider: 'local',
-          storage_key: fileData.filename || 'mock-key',
-          original_name: fileData.originalname || 'mock-file.pdf',
-          mime_type: fileData.mimetype || 'application/pdf',
-          size: fileData.size || 1024,
+          storage_provider: 'local', // Consistent casing
+          storage_key: storageKey,
+          original_name: fileData.originalname,
+          mime_type: fileData.mimetype,
+          size: fileData.size,
           uploaded_by: userId
         }
       });

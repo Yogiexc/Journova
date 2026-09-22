@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Param, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, UseGuards, Req, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { PublicationsService } from './publications.service.js';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
 import { RolesGuard } from '../auth/roles.guard.js';
@@ -32,19 +33,17 @@ export class PublicationsController {
   }
 
   @Post(':id/files')
+  @UseInterceptors(FileInterceptor('file'))
   uploadFile(
     @Param('id') id: string,
     @Req() req: any,
-    @Body() dto: UploadEditorialFileDto
+    @Body() dto: UploadEditorialFileDto,
+    @UploadedFile() file: any
   ) {
-    // Mocking file buffer for MVP
-    const fileData = {
-      filename: `mock-${dto.stage.toLowerCase()}-${Date.now()}.pdf`,
-      originalname: `mock-${dto.stage.toLowerCase()}.pdf`,
-      mimetype: 'application/pdf',
-      size: 1024 * 500
-    };
-    return this.publicationsService.uploadEditorialFile(id, req.user.id, fileData, dto.stage, dto.notes);
+    if (!file) {
+      throw new BadRequestException('File is required');
+    }
+    return this.publicationsService.uploadEditorialFile(id, req.user.id, file, dto.stage, dto.notes);
   }
 
   @Post(':id/schedule')
