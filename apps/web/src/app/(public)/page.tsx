@@ -1,11 +1,37 @@
 import Link from 'next/link';
-import { MOCK_ARTICLES } from '@/data/articles';
-import { MOCK_ISSUES } from '@/data/issues';
 import { ArticleCard } from '@/components/articles/ArticleCard';
 
-export default function HomePage() {
-  const currentIssue = MOCK_ISSUES[0];
-  const latestArticles = MOCK_ARTICLES.slice(0, 3);
+async function getLatestArticles() {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/articles?limit=3`, {
+      next: { revalidate: 60 }
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.data || [];
+  } catch (error) {
+    console.error("Failed to fetch latest articles", error);
+    return [];
+  }
+}
+
+async function getLatestIssue() {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/issues`, {
+      next: { revalidate: 60 }
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.data?.[0] || null; // Assume the first one is the latest for now
+  } catch (error) {
+    console.error("Failed to fetch latest issue", error);
+    return null;
+  }
+}
+
+export default async function HomePage() {
+  const currentIssue = await getLatestIssue();
+  const latestArticles = await getLatestArticles();
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -49,9 +75,13 @@ export default function HomePage() {
                 </Link>
               </div>
               <div className="flex flex-col">
-                {latestArticles.map(article => (
-                  <ArticleCard key={article.id} article={article} />
-                ))}
+                {latestArticles.length > 0 ? (
+                  latestArticles.map((article: any) => (
+                    <ArticleCard key={article.id} article={article} />
+                  ))
+                ) : (
+                  <div className="py-8 text-center text-slate-500">No published articles yet.</div>
+                )}
               </div>
             </div>
 
@@ -62,24 +92,28 @@ export default function HomePage() {
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-900 dark:text-white mb-6 pb-2 border-b border-slate-200 dark:border-slate-800">
                   Current Issue
                 </h2>
-                <div className="flex flex-col gap-4">
-                  <div className="aspect-[3/4] rounded shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-100">
-                    {currentIssue.coverImage ? (
-                      <img src={currentIssue.coverImage} alt="Cover" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-slate-400 font-serif">No Cover</div>
-                    )}
+                {currentIssue ? (
+                  <div className="flex flex-col gap-4">
+                    <div className="aspect-[3/4] rounded shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-100">
+                      {currentIssue.cover_image_url ? (
+                        <img src={currentIssue.cover_image_url} alt="Cover" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-slate-400 font-serif">No Cover</div>
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-slate-900 dark:text-slate-100 mb-1">{currentIssue.title}</h3>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                        Vol. {currentIssue.volume?.volume_number} No. {currentIssue.issue_number} • {currentIssue.volume?.year}
+                      </p>
+                    </div>
+                    <Link href={`/issues/${currentIssue.id}`} className="text-sm font-medium text-slate-900 hover:underline dark:text-white">
+                      View full issue →
+                    </Link>
                   </div>
-                  <div>
-                    <h3 className="font-medium text-slate-900 dark:text-slate-100 mb-1">{currentIssue.title}</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                      Vol. {currentIssue.volume} No. {currentIssue.number} • {currentIssue.year}
-                    </p>
-                  </div>
-                  <Link href={`/issues/${currentIssue.id}`} className="text-sm font-medium text-slate-900 hover:underline dark:text-white">
-                    View full issue →
-                  </Link>
-                </div>
+                ) : (
+                  <div className="py-4 text-slate-500">No issues published yet.</div>
+                )}
               </div>
 
               {/* Announcements */}
