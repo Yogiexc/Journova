@@ -27,7 +27,7 @@ export function ArticleCard({ article }: { article: Article }) {
           <span>DOI: {article.doi ? article.doi.split('/')[1] : 'Not assigned yet'}</span>
         </div>
         <div className="flex gap-4">
-          <span>{new Date(article.published_at || article.publishDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+          <span>{new Date(article.published_at || article.publishDate || '').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
         </div>
       </div>
     </article>

@@ -16,9 +16,10 @@ export class AuthController {
   private setRefreshCookie(res: Response, refreshToken: string) {
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: false, // Set to false for local dev across ports
+      sameSite: 'lax', // Lax works for localhost across ports
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      path: '/',
     });
   }
 
