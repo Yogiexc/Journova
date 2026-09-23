@@ -14,7 +14,8 @@ export interface Article {
   doi: string;
   keywords: string[];
   status: 'Published' | 'Under Review' | 'Accepted';
-  publishDate: string;
+  publishDate?: string;
+  published_at?: string;
   issueId: string;
   views: number;
   downloads: number;

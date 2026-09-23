@@ -55,7 +55,7 @@ export const fetchApi = async (endpoint: string, options: FetchOptions = {}) => 
         response = await fetch(`${API_BASE_URL}${endpoint}`, retryOptions);
       } else {
         setAccessToken(null);
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/register')) {
           window.location.href = '/login';
         }
       }
