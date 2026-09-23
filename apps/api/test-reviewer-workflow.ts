@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 
 const API_URL = 'http://localhost:3001/api/v1';
 
-async function fetchApi(path: string, method = 'GET', body = null, token = null) {
+async function fetchApi(path: string, method = 'GET', body: any = null, token: string | null = null) {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -185,6 +185,7 @@ async function runTests() {
 
   console.log('\\n[9] Checking DB constraint (Assignment Status)...');
   const dbAssignment = await prisma.reviewAssignment.findUnique({ where: { id: assignmentA.id }, include: { review: true } });
+  if (!dbAssignment) throw new Error('Assignment not found');
   if (dbAssignment.status !== 'COMPLETED') throw new Error(`Assignment not COMPLETED, is ${dbAssignment.status}`);
   if (!dbAssignment.review) throw new Error(`Review record not created!`);
   console.log('Transaction & DB state verified.');
