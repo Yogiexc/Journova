@@ -1,10 +1,10 @@
 "use client";
 
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, RoleName } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-export function AuthGuard({ children, requiredRole }: { children: React.ReactNode, requiredRole?: string }) {
+export function AuthGuard({ children, requiredRole }: { children: React.ReactNode, requiredRole?: RoleName }) {
   const { user, isLoading, hasRole } = useAuth();
   const router = useRouter();
 

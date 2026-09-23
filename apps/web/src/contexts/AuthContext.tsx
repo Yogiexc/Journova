@@ -3,11 +3,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { fetchApi, setAccessToken } from '../lib/api-client';
 
+export type RoleName = 'AUTHOR' | 'REVIEWER' | 'EDITOR' | 'ADMIN';
+
 export interface User {
   id: string;
   name: string;
   email: string;
-  roles: { role: { name: string } }[];
+  roles: RoleName[];
 }
 
 interface AuthContextType {
@@ -15,7 +17,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (access_token: string) => Promise<void>;
   logout: () => Promise<void>;
-  hasRole: (roleName: string) => boolean;
+  hasRole: (roleName: RoleName) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -69,9 +71,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const hasRole = (roleName: string) => {
+  const hasRole = (roleName: RoleName) => {
     if (!user || !user.roles) return false;
-    return user.roles.some((r) => r.role.name === roleName);
+    return user.roles.includes(roleName);
   };
 
   return (
