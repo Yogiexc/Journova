@@ -1,6 +1,7 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiResponse } from '../dto/api-response.dto.js';
+import { Prisma } from '@prisma/client';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -12,19 +13,35 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     
+    // Map Prisma errors to HttpExceptions
+    let handledException = exception;
+    if (exception instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (exception.code) {
+        case 'P2002':
+          handledException = new HttpException('Unique constraint failed', HttpStatus.CONFLICT);
+          break;
+        case 'P2025':
+          handledException = new HttpException('Record not found', HttpStatus.NOT_FOUND);
+          break;
+        case 'P2003':
+          handledException = new HttpException('Foreign key constraint failed', HttpStatus.BAD_REQUEST);
+          break;
+      }
+    }
+
     const status = 
-      exception instanceof HttpException
-        ? exception.getStatus()
+      handledException instanceof HttpException
+        ? handledException.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
     const message = 
-      exception instanceof HttpException
-        ? exception.message
+      handledException instanceof HttpException
+        ? handledException.message
         : 'Internal server error';
         
     const code = 
-      exception instanceof HttpException
-        ? exception.name
+      handledException instanceof HttpException
+        ? handledException.name
         : 'INTERNAL_SERVER_ERROR';
 
     const errorResponse = new ApiResponse({
@@ -32,7 +49,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       error: {
         code,
         message,
-        details: exception instanceof HttpException ? exception.getResponse() : null,
+        details: handledException instanceof HttpException ? handledException.getResponse() : null,
       },
     });
 
