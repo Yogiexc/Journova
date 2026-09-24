@@ -7,14 +7,20 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy.js';
 
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
 @Module({
   imports: [
     UsersModule,
     PrismaModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'journova-super-secret-key-change-me',
-      signOptions: { expiresIn: '15m' }, // Update to 15m default
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET')!,
+        signOptions: { expiresIn: configService.get<string>('JWT_ACCESS_EXPIRES_IN')! as any },
+      }),
+      inject: [ConfigService],
     }),
   ],
   controllers: [AuthController],

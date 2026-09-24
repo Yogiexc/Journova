@@ -4,9 +4,11 @@ import { AppModule } from './app.module.js';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter.js';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor.js';
 import cookieParser from 'cookie-parser';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
   
   // Apply Global Middleware
   app.use(cookieParser());
@@ -14,11 +16,13 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalInterceptors(new TransformInterceptor());
   
+  const corsOrigins = configService.get<string>('CORS_ORIGINS')?.split(',') || [];
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+    origin: corsOrigins,
     credentials: true,
   });
 
-  await app.listen(3001);
+  const port = configService.get<number>('PORT') || 3001;
+  await app.listen(port);
 }
 bootstrap();
