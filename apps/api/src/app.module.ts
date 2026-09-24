@@ -14,9 +14,15 @@ import { IssuesModule } from './issues/issues.module.js';
 import { EditorModule } from './editor/editor.module.js';
 import { PublicationsModule } from './publications/publications.module.js';
 import { DoiModule } from './doi/doi.module.js';
+import { ConfigModule } from '@nestjs/config';
+import { envValidationSchema } from './config/env.validation.js';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: envValidationSchema,
+    }),
     ThrottlerModule.forRoot([{
       ttl: 60000,
       limit: 10, // Max 10 requests per minute by default
