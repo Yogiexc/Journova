@@ -62,3 +62,36 @@ Journova uses an NPM workspaces monorepo structure:
 
 ## 📜 License
 Internal Project.
+
+---
+
+## 🗺️ Development Phases & Roadmap
+
+### ✅ Phase 10: DOI Workflow & Deposit Architecture
+- Implementation of `DoiDeposit` state machine.
+- Mock DOI deposit and retry mechanisms.
+- DOI metadata and Crossref XML preparation scaffolding.
+
+### ✅ Phase 10.5: Stabilization & Integration Audit
+- **Status:** **COMPLETE** (Evidence verified)
+- Security, Auth, RBAC, and IDOR enforcement.
+- Transactions, state machine boundaries, and error handling (Prisma exceptions mapped).
+- Negative testing and migration validation successful.
+- **Known MVP Limitations:**
+  1. DOI registration is currently a **MOCK**.
+  2. File storage relies on the local filesystem.
+  3. Cloud/multi-server storage architecture is not yet implemented.
+  4. Real Crossref API integration is not validated against live servers.
+
+### ⏳ Phase 11: Production Hardening & Release Readiness (Next Up)
+1. Environment configuration audit & production `.env` separation.
+2. CORS and Cookie security hardening.
+3. File storage abstraction.
+4. Logging, monitoring, and API documentation.
+5. Frontend empty states, error/loading UI.
+6. SEO Metadata and Security Headers.
+7. Rate limiting & Database backup strategy.
+8. Deployment configuration and production smoke testing.
+
+### 🚀 Phase 12: Real DOI / Crossref Integration
+- Transitioning Mock DOI to live Crossref API.
