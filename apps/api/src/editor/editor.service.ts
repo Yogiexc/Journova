@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { AssignReviewerDto } from './dto/assign-reviewer.dto.js';
 import { EditorialDecisionDto } from './dto/editorial-decision.dto.js';
@@ -129,22 +129,14 @@ export class EditorService {
 
     // Duplicate assignment check is handled by Prisma @@unique constraint
     // But we wrap in try-catch to provide a good error message
-    let assignment;
-    try {
-      assignment = await this.prisma.reviewAssignment.create({
-        data: {
-          round_id: activeRound.id,
-          reviewer_id: dto.reviewer_id,
-          assigned_by: editorId,
-          status: 'INVITED',
-        },
-      });
-    } catch (e: any) {
-      if (e.code === 'P2002') {
-        throw new BadRequestException({ success: false, error: { code: 'DUPLICATE_REVIEWER', message: 'Reviewer is already assigned to this round' } });
-      }
-      throw e;
-    }
+    const assignment = await this.prisma.reviewAssignment.create({
+      data: {
+        round_id: activeRound.id,
+        reviewer_id: dto.reviewer_id,
+        assigned_by: editorId,
+        status: 'INVITED',
+      },
+    });
 
     // Change status to UNDER_REVIEW if not already
     if (submission.status !== 'UNDER_REVIEW') {

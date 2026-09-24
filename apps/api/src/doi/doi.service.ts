@@ -3,11 +3,16 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { DoiDepositStatus } from '@prisma/client';
 import * as crypto from 'crypto';
 
+import { ConfigService } from '@nestjs/config';
+
 @Injectable()
 export class DoiService {
   private readonly logger = new Logger(DoiService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private configService: ConfigService,
+  ) {}
 
   /**
    * Generates a basic Crossref XML payload for an article.
@@ -68,7 +73,7 @@ export class DoiService {
         ${article.page_start ? `<pages><first_page>${article.page_start}</first_page><last_page>${article.page_end}</last_page></pages>` : ''}
         <doi_data>
           <doi>${doi}</doi>
-          <resource>${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/articles/${article.slug}</resource>
+          <resource>${this.configService.get<string>('FRONTEND_URL')}/articles/${article.slug}</resource>
         </doi_data>
       </journal_article>
     </journal>
