@@ -7,12 +7,15 @@ import * as crypto from 'crypto';
 import { RegisterDto } from './dto/register.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 
+import { ConfigService } from '@nestjs/config';
+
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
     private prisma: PrismaService,
+    private configService: ConfigService,
   ) {}
 
   async register(registerDto: RegisterDto) {
@@ -125,8 +128,8 @@ export class AuthService {
     const payload = { sub: userId, email };
     
     const accessToken = this.jwtService.sign(payload, {
-      secret: process.env.JWT_SECRET || 'journova-super-secret-key-change-me',
-      expiresIn: (process.env.JWT_ACCESS_EXPIRES_IN || '15m') as any,
+      secret: this.configService.get<string>('JWT_SECRET')!,
+      expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRES_IN')! as any,
     });
 
     const randomValue = crypto.randomBytes(32).toString('hex');
