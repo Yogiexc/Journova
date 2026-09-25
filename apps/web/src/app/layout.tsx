@@ -6,8 +6,12 @@ import { AuthProvider } from "@/contexts/AuthContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Journova",
-  description: "Modernizing Scientific Publishing",
+  title: {
+    template: "%s | Journova",
+    default: "Journova Press - Modern Scientific Publishing",
+  },
+  description: "An open-access editorial platform dedicated to the rapid dissemination of high-quality, peer-reviewed research.",
+  keywords: ["Journal", "Research", "Open Access", "Scientific Publishing", "Peer Review"],
 };
 
 export default function RootLayout({

@@ -1,7 +1,21 @@
-import { MOCK_ISSUES } from '@/data/issues';
 import { IssueCard } from '@/components/issues/IssueCard';
 
-export default function IssuesPage() {
+async function getIssues() {
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+    const res = await fetch(`${apiUrl}/issues`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.data || [];
+  } catch (error) {
+    console.error("Failed to fetch issues", error);
+    return [];
+  }
+}
+
+export default async function IssuesPage() {
+  const issues = await getIssues();
+
   return (
     <div className="container mx-auto px-4 md:px-8 py-12 max-w-6xl">
       <div className="mb-12 border-b border-slate-200 dark:border-slate-800 pb-8">
@@ -12,9 +26,13 @@ export default function IssuesPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-        {MOCK_ISSUES.map(issue => (
-          <IssueCard key={issue.id} issue={issue} />
-        ))}
+        {issues.length > 0 ? (
+          issues.map((issue: any) => (
+            <IssueCard key={issue.id} issue={issue} />
+          ))
+        ) : (
+          <div className="col-span-full py-8 text-center text-slate-500">No issues found.</div>
+        )}
       </div>
     </div>
   );

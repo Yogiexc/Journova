@@ -8,19 +8,29 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { RolesGuard } from './roles.guard.js';
 import { Roles } from './roles.decorator.js';
 
+import { ConfigService } from '@nestjs/config';
+
 @UseGuards(ThrottlerGuard)
 @Controller('api/v1/auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private configService: ConfigService,
+  ) {}
 
   private setRefreshCookie(res: Response, refreshToken: string) {
-    res.cookie('refresh_token', refreshToken, {
-      httpOnly: true,
-      secure: false, // Set to false for local dev across ports
-      sameSite: 'lax', // Lax works for localhost across ports
+    const domain = this.configService.get<string>('COOKIE_DOMAIN');
+    const cookieOptions: any = {
+      httpOnly: this.configService.get<boolean>('COOKIE_HTTP_ONLY'),
+      secure: this.configService.get<boolean>('COOKIE_SECURE'),
+      sameSite: this.configService.get<string>('COOKIE_SAME_SITE') as 'strict' | 'lax' | 'none',
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       path: '/',
-    });
+    };
+    if (domain) {
+      cookieOptions.domain = domain;
+    }
+    res.cookie('refresh_token', refreshToken, cookieOptions);
   }
 
   @Post('register')

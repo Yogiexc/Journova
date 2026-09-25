@@ -14,7 +14,7 @@ async function getArticles(searchParams: any) {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
     const res = await fetch(`${apiUrl}/articles?${query.toString()}`, {
-      next: { revalidate: 60 }
+      cache: 'no-store'
     });
     if (!res.ok) return { data: [], meta: { total: 0, total_pages: 0, page: 1 } };
     const json = await res.json();

@@ -1,15 +1,17 @@
 import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
-import * as fs from 'fs';
-import * as path from 'path';
 import * as crypto from 'crypto';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ArticleStatus, EditorialFileStage } from '@prisma/client';
 import { ScheduleArticleDto } from './dto/publication.dto.js';
 import { Express } from 'express';
+import { StorageService } from '../storage/storage.service.js';
 
 @Injectable()
 export class PublicationsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private storageService: StorageService,
+  ) {}
 
   async getPublicationQueue() {
     return this.prisma.article.findMany({
@@ -114,14 +116,8 @@ export class PublicationsService {
 
     const uniqueSuffix = crypto.randomUUID();
     const storageKey = `articles/${articleId}/${stage.toLowerCase()}-${uniqueSuffix}.pdf`;
-    const uploadDir = path.join(process.cwd(), 'uploads');
-    const filePath = path.join(uploadDir, storageKey);
     
-    // Ensure directory exists securely
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    
-    // Write physical file
-    fs.writeFileSync(filePath, fileData.buffer);
+    await this.storageService.uploadFile(storageKey, fileData.buffer);
 
     // Determine version number
     const existingFiles = await this.prisma.editorialFile.findMany({

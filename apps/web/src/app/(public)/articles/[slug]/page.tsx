@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation';
 
 async function getArticle(slug: string) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
-  const res = await fetch(`${apiUrl}/articles/${slug}`, { next: { revalidate: 60 } });
+  const res = await fetch(`${apiUrl}/articles/${slug}`, { cache: 'no-store' });
   
   if (!res.ok) {
     if (res.status === 404) return null;
@@ -15,6 +15,15 @@ async function getArticle(slug: string) {
   
   const data = await res.json();
   return data.data;
+}
+
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  const article = await getArticle(params.slug);
+  if (!article) return { title: 'Not Found' };
+  return {
+    title: article.title,
+    description: article.abstract?.substring(0, 160) || 'Research article published in Journova.',
+  };
 }
 
 export default async function ArticleDetailPage({ params }: { params: { slug: string } }) {
@@ -27,8 +36,29 @@ export default async function ArticleDetailPage({ params }: { params: { slug: st
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
   const pdfUrl = article.pdf_url ? `${apiUrl.replace('/api/v1', '')}${article.pdf_url}` : null;
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ScholarlyArticle',
+    headline: article.title,
+    author: article.authors.map((a: any) => ({
+      '@type': 'Person',
+      name: a.author.full_name,
+      affiliation: {
+        '@type': 'Organization',
+        name: a.author.affiliation || a.author.institution
+      }
+    })),
+    datePublished: article.published_at,
+    description: article.abstract,
+    url: `${apiUrl.replace('/api/v1', '')}/articles/${article.slug}`
+  };
+
   return (
     <article className="container mx-auto px-4 md:px-8 py-12 max-w-4xl">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Breadcrumbs */}
       <nav className="text-sm text-slate-500 mb-8 flex items-center gap-2">
         <Link href="/" className="hover:text-slate-900 transition-colors">Home</Link>

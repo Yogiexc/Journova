@@ -5,7 +5,7 @@ async function getLatestArticles() {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
     const res = await fetch(`${apiUrl}/articles?limit=3`, {
-      next: { revalidate: 60 }
+      cache: 'no-store'
     });
     if (!res.ok) return [];
     const json = await res.json();
@@ -20,7 +20,7 @@ async function getLatestIssue() {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
     const res = await fetch(`${apiUrl}/issues`, {
-      next: { revalidate: 60 }
+      cache: 'no-store'
     });
     if (!res.ok) return null;
     const json = await res.json();
