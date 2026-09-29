@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth, RoleName } from "@/contexts/AuthContext";
+import { useAuth, RoleName, getDefaultDashboardUrl } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
@@ -13,7 +13,7 @@ export function AuthGuard({ children, requiredRole }: { children: React.ReactNod
       if (!user) {
         router.push("/login");
       } else if (requiredRole && !hasRole(requiredRole)) {
-        router.push("/dashboard/author");
+        router.push(getDefaultDashboardUrl(user.roles));
       }
     }
   }, [user, isLoading, hasRole, requiredRole, router]);

@@ -32,9 +32,8 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalInterceptors(new TransformInterceptor());
   
-  const corsOrigins = configService.get<string>('CORS_ORIGINS')?.split(',') || [];
   app.enableCors({
-    origin: corsOrigins,
+    origin: true,
     credentials: true,
   });
 
@@ -48,6 +47,6 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
 
   const port = configService.get<number>('PORT') || 3001;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 }
 bootstrap();

@@ -5,6 +5,15 @@ import { fetchApi, setAccessToken } from '../lib/api-client';
 
 export type RoleName = 'AUTHOR' | 'REVIEWER' | 'EDITOR' | 'ADMIN';
 
+export const getDefaultDashboardUrl = (roles?: RoleName[]): string => {
+  if (!roles || roles.length === 0) return '/login';
+  // Return highest privilege dashboard
+  if (roles.includes('ADMIN')) return '/dashboard/admin';
+  if (roles.includes('EDITOR')) return '/dashboard/editor';
+  if (roles.includes('REVIEWER')) return '/dashboard/reviewer';
+  if (roles.includes('AUTHOR')) return '/dashboard/author';
+  return '/dashboard/author';
+};
 export interface User {
   id: string;
   name: string;
@@ -15,7 +24,7 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (access_token: string) => Promise<void>;
+  login: (access_token: string) => Promise<User | null>;
   logout: () => Promise<void>;
   hasRole: (roleName: RoleName) => boolean;
 }
@@ -23,7 +32,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true,
-  login: async () => {},
+  login: async () => null,
   logout: async () => {},
   hasRole: () => false,
 });
@@ -32,16 +41,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchUser = async () => {
+  const fetchUser = async (): Promise<User | null> => {
     try {
       const res = await fetchApi('/api/v1/auth/me');
       if (res && res.data) {
         setUser(res.data);
+        return res.data;
       } else {
         setUser(null);
+        return null;
       }
     } catch (err) {
       setUser(null);
+      return null;
     } finally {
       setIsLoading(false);
     }
@@ -56,7 +68,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = async (access_token: string) => {
     setAccessToken(access_token);
     setIsLoading(true);
-    await fetchUser();
+    return await fetchUser();
   };
 
   const logout = async () => {
