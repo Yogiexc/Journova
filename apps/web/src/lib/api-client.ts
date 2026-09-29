@@ -14,6 +14,8 @@ interface FetchOptions extends RequestInit {
   requireAuth?: boolean;
 }
 
+let refreshTokenPromise: Promise<string | null> | null = null;
+
 export const fetchApi = async (endpoint: string, options: FetchOptions = {}) => {
   const { requireAuth = true, headers, ...restOptions } = options;
   
@@ -36,28 +38,42 @@ export const fetchApi = async (endpoint: string, options: FetchOptions = {}) => 
 
   if (response.status === 401 && requireAuth) {
     try {
-      const refreshResponse = await fetch(`${API_BASE_URL}/api/v1/auth/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-      });
+      if (!refreshTokenPromise) {
+        refreshTokenPromise = fetch(`${API_BASE_URL}/api/v1/auth/refresh`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+        }).then(async (refreshResponse) => {
+          if (refreshResponse.ok) {
+            const refreshData = await refreshResponse.json();
+            const newAccessToken = refreshData.data.access_token;
+            setAccessToken(newAccessToken);
+            return newAccessToken;
+          } else {
+            setAccessToken(null);
+            if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/register')) {
+              window.location.href = '/login';
+            }
+            return null;
+          }
+        }).catch((err) => {
+          console.error('Failed to refresh token:', err);
+          setAccessToken(null);
+          return null;
+        }).finally(() => {
+          refreshTokenPromise = null;
+        });
+      }
 
-      if (refreshResponse.ok) {
-        const refreshData = await refreshResponse.json();
-        setAccessToken(refreshData.data.access_token);
-        
-        currentHeaders['Authorization'] = `Bearer ${accessToken}`;
+      const newAccessToken = await refreshTokenPromise;
+      if (newAccessToken) {
+        currentHeaders['Authorization'] = `Bearer ${newAccessToken}`;
         const retryOptions: RequestInit = {
           ...restOptions,
           headers: currentHeaders,
           credentials: 'include',
         };
         response = await fetch(`${API_BASE_URL}${endpoint}`, retryOptions);
-      } else {
-        setAccessToken(null);
-        if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/register')) {
-          window.location.href = '/login';
-        }
       }
     } catch (error) {
       console.error('Failed to refresh token:', error);
