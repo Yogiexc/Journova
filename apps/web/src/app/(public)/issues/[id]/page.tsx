@@ -51,7 +51,7 @@ export default async function IssueDetailPage({ params }: { params: { id: string
             <div className="pb-4 border-b border-slate-200 dark:border-slate-800">
               <span className="block text-xs uppercase tracking-wider text-slate-500 mb-1">Published</span>
               <span className="font-medium text-slate-900 dark:text-slate-100">
-                {new Date(issue.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                {issue.published_at ? new Date(issue.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Draft'}
               </span>
             </div>
             <div>
