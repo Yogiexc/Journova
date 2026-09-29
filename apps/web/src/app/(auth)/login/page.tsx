@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, getDefaultDashboardUrl } from "@/contexts/AuthContext";
 import { fetchApi } from "@/lib/api-client";
 
 export default function LoginPage() {
@@ -27,8 +27,9 @@ export default function LoginPage() {
       });
       
       if (res && res.data?.access_token) {
-        await login(res.data.access_token);
-        window.location.href = '/dashboard/author'; // Just a default fallback, dashboard layout can handle redirecting
+        const fetchedUser = await login(res.data.access_token);
+        const roles = fetchedUser?.roles || [];
+        window.location.href = getDefaultDashboardUrl(roles);
       }
     } catch (err: any) {
       setError(err.message || "Failed to login");

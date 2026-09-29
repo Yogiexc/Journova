@@ -14,16 +14,16 @@ export function IssueCard({ issue }: { issue: Issue }) {
       </div>
       <CardHeader className="p-4">
         <div className="text-xs text-slate-500 mb-1">
-          Vol. {issue.volume?.volume_number || issue.volume || '?'} No. {issue.issue_number || issue.number || '?'} ({issue.volume?.year || issue.year || '?'})
+          Vol. {typeof issue.volume === 'object' ? (issue.volume as any).volume_number : issue.volume || '?'} No. {(issue as any).issue_number || issue.number || '?'} ({typeof issue.volume === 'object' ? (issue.volume as any).year : issue.year || '?'})
         </div>
         <CardTitle className="text-lg font-serif leading-snug">
           <Link href={`/issues/${issue.id}`} className="hover:text-primary transition-colors">
-            {issue.title || `Issue ${issue.issue_number || issue.number}`}
+            {issue.title || `Issue ${(issue as any).issue_number || issue.number}`}
           </Link>
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4 pt-0 flex-grow text-sm text-slate-600 dark:text-slate-400">
-        Published: {issue.published_at || issue.publishDate ? new Date(issue.published_at || issue.publishDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'Draft'}
+        Published: {(issue as any).published_at || issue.publishDate ? new Date((issue as any).published_at || issue.publishDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'Draft'}
       </CardContent>
     </Card>
   );

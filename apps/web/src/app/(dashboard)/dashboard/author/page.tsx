@@ -94,7 +94,7 @@ export default function AuthorDashboardPage() {
                   <FileText className="w-10 h-10 text-slate-300 dark:text-slate-700" />
                 </div>
                 <h3 className="text-lg font-medium text-slate-700 dark:text-slate-300">No manuscripts yet</h3>
-                <p className="text-sm max-w-md">You haven't submitted any manuscripts yet. Click the button above to start your first submission.</p>
+                <p className="text-sm max-w-md">You haven&apos;t submitted any manuscripts yet. Click the button above to start your first submission.</p>
               </div>
             ) : (
               submissions.map((sub) => (
