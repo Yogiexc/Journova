@@ -35,109 +35,114 @@ export default function EditorDashboardPage() {
   const accepted = submissions.filter(s => s.status === 'ACCEPTED').length;
 
   return (
-    <div className="max-w-6xl">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-serif text-slate-900 dark:text-white mb-1">Editor Dashboard</h1>
-          <p className="text-sm text-slate-500">Manage the complete editorial lifecycle of your journal.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button variant="outline" className="gap-2">
-            <Users className="w-4 h-4" /> Manage Reviewers
+    <div className="max-w-6xl mx-auto space-y-10">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-8 sm:p-10 shadow-sm">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <h1 className="text-3xl sm:text-4xl font-serif text-slate-900 dark:text-white tracking-tight">Editor Workspace</h1>
+            <p className="text-base text-slate-500 dark:text-slate-400 font-normal max-w-xl">Manage the complete editorial lifecycle, oversee reviews, and publish manuscripts.</p>
+          </div>
+          <Button size="lg" variant="outline" className="gap-2 shadow-sm transition-all hover:-translate-y-0.5" asChild>
+            <Link href="#">
+              <Users className="w-4 h-4" /> Manage Reviewers
+            </Link>
           </Button>
         </div>
       </div>
 
-      {error && <div className="mb-4 text-red-500 text-sm bg-red-50 p-3 rounded-md">{error}</div>}
+      {error && <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md">{error}</div>}
 
       {/* Editor Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-        <Card>
-          <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3">
-              <Inbox className="w-5 h-5" />
-            </div>
-            <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{loading ? '-' : newSubmissions}</h3>
-            <p className="text-sm font-medium text-slate-500">New Submissions</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-            <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-3">
-              <FileSearch className="w-5 h-5" />
-            </div>
-            <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{loading ? '-' : underReview}</h3>
-            <p className="text-sm font-medium text-slate-500">Under Review</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-            <div className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-3">
-              <RefreshCcw className="w-5 h-5" />
-            </div>
-            <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{loading ? '-' : revisionRequired}</h3>
-            <p className="text-sm font-medium text-slate-500">Revision Required</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-            <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3">
-              <CheckCircle className="w-5 h-5" />
-            </div>
-            <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{loading ? '-' : accepted}</h3>
-            <p className="text-sm font-medium text-slate-500">Accepted</p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { label: 'New Submissions', value: newSubmissions, icon: Inbox, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+          { label: 'Under Review', value: underReview, icon: FileSearch, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+          { label: 'Revision Required', value: revisionRequired, icon: RefreshCcw, color: 'text-rose-500', bg: 'bg-rose-500/10' },
+          { label: 'Accepted', value: accepted, icon: CheckCircle, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+        ].map((stat, idx) => (
+          <Card key={idx} className="group relative overflow-hidden border-slate-200/60 dark:border-slate-800/60 bg-white/60 dark:bg-slate-950/60 backdrop-blur-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div className={`absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl -mr-10 -mt-10 opacity-20 transition-opacity group-hover:opacity-40 ${stat.bg.replace('/10', '')}`}></div>
+            <CardContent className="p-6 relative z-10 flex flex-col justify-between h-full">
+              <div className="flex items-center justify-between mb-4">
+                <div className={`w-12 h-12 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center shadow-sm`}>
+                  <stat.icon className="w-6 h-6" />
+                </div>
+              </div>
+              <div>
+                <h3 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{loading ? <span className="animate-pulse">...</span> : stat.value}</h3>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">{stat.label}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* Editor Queue */}
-      <Card>
-        <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/20 flex flex-row items-center justify-between">
-          <CardTitle className="text-lg font-medium">Recent Activity Queue</CardTitle>
-          <select className="text-sm border-slate-200 dark:border-slate-700 bg-transparent rounded-md focus:ring-primary">
+      <Card className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-lg overflow-hidden">
+        <CardHeader className="border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-900/50 px-8 py-6 flex flex-row items-center justify-between">
+          <CardTitle className="text-xl font-serif text-slate-800 dark:text-slate-100">Editorial Queue</CardTitle>
+          <select className="text-sm border-slate-200 dark:border-slate-700 bg-transparent rounded-md focus:ring-primary h-9">
             <option>All Statuses</option>
             <option>Action Required</option>
             <option>New Submissions</option>
           </select>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+          <div className="divide-y divide-slate-100 dark:divide-slate-800/50">
             {loading ? (
-              <div className="p-6 text-center text-slate-500">Loading queue...</div>
+              <div className="p-12 flex flex-col items-center justify-center text-slate-400 space-y-4">
+                <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
+                <p>Loading queue...</p>
+              </div>
             ) : submissions.length === 0 ? (
-              <div className="p-6 text-center text-slate-500">Queue is empty.</div>
+              <div className="p-16 flex flex-col items-center justify-center text-slate-500 space-y-4 text-center">
+                <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center mb-2">
+                  <Inbox className="w-10 h-10 text-slate-300 dark:text-slate-700" />
+                </div>
+                <h3 className="text-lg font-medium text-slate-700 dark:text-slate-300">Queue is empty</h3>
+                <p className="text-sm max-w-md">There are no manuscripts requiring editorial action at the moment.</p>
+              </div>
             ) : (
               submissions.map((sub) => (
-                <div key={sub.id} className="p-6 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors flex flex-col md:flex-row justify-between gap-6">
-                  <div className="space-y-2 max-w-2xl">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs font-medium text-slate-500 font-mono">#{sub.id.substring(0, 8)}</span>
-                      <Badge variant="outline" className={
-                        sub.status === 'SUBMITTED' ? "bg-blue-50 text-blue-700 border-blue-200" :
-                        sub.status === 'UNDER_REVIEW' ? "bg-amber-50 text-amber-700 border-amber-200" :
-                        sub.status === 'ACCEPTED' ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
-                        "bg-slate-50 text-slate-700 border-slate-200"
-                      }>
-                        {sub.status.replace('_', ' ')}
-                      </Badge>
+                <div key={sub.id} className="p-6 sm:px-8 hover:bg-slate-50/80 dark:hover:bg-slate-900/40 transition-colors group">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                    <div className="space-y-2 max-w-3xl flex-1">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-mono text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">#{sub.id.substring(0, 8)}</span>
+                        <Badge variant="outline" className={`font-medium border-0 px-3 py-1 bg-opacity-10 dark:bg-opacity-20 ${
+                          sub.status === 'SUBMITTED' ? "bg-blue-500 text-blue-600 dark:text-blue-400" :
+                          sub.status === 'UNDER_REVIEW' ? "bg-amber-500 text-amber-600 dark:text-amber-400" :
+                          sub.status === 'REVISION_REQUIRED' ? "bg-rose-500 text-rose-600 dark:text-rose-400" :
+                          sub.status === 'ACCEPTED' ? "bg-emerald-500 text-emerald-600 dark:text-emerald-400" :
+                          "bg-slate-500 text-slate-600 dark:text-slate-400"
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full mr-2 inline-block ${
+                            sub.status === 'SUBMITTED' ? "bg-blue-500" :
+                            sub.status === 'UNDER_REVIEW' ? "bg-amber-500" :
+                            sub.status === 'REVISION_REQUIRED' ? "bg-rose-500" :
+                            sub.status === 'ACCEPTED' ? "bg-emerald-500" :
+                            "bg-slate-500"
+                          }`}></span>
+                          {sub.status.replace('_', ' ')}
+                        </Badge>
+                      </div>
+                      <h4 className="text-lg font-serif text-slate-900 dark:text-white leading-snug group-hover:text-primary transition-colors">
+                        <Link href={`/dashboard/editor/submissions/${sub.id}`}>
+                          {sub.article.title}
+                        </Link>
+                      </h4>
+                      <div className="flex gap-4 text-sm text-slate-500 dark:text-slate-400 pt-1">
+                        <span><strong>Author:</strong> {sub.submitted_by?.name || 'Unknown'}</span>
+                        <span><strong>Updated:</strong> {new Date(sub.updated_at).toLocaleDateString()}</span>
+                      </div>
                     </div>
-                    <h4 className="text-base font-medium text-slate-900 dark:text-slate-100">
-                      <Link href={`/dashboard/editor/submissions/${sub.id}`} className="hover:text-primary transition-colors">
-                        {sub.article.title}
-                      </Link>
-                    </h4>
-                    <div className="flex gap-4 text-sm text-slate-500 pt-1">
-                      <span><strong>Author:</strong> {sub.submitted_by.name}</span>
-                      <span><strong>Updated:</strong> {new Date(sub.updated_at).toLocaleDateString()}</span>
+                    <div className="flex-shrink-0">
+                      <Button asChild variant={sub.status === 'SUBMITTED' ? 'default' : 'outline'} className={sub.status !== 'SUBMITTED' ? "border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-transform hover:-translate-y-0.5" : "transition-transform hover:-translate-y-0.5 shadow-sm"}>
+                        <Link href={`/dashboard/editor/submissions/${sub.id}`}>View Details</Link>
+                      </Button>
                     </div>
-                  </div>
-                  <div className="flex items-center">
-                    <Button asChild variant={sub.status === 'SUBMITTED' ? 'default' : 'outline'} className="w-full whitespace-nowrap">
-                      <Link href={`/dashboard/editor/submissions/${sub.id}`}>View Details</Link>
-                    </Button>
                   </div>
                 </div>
               ))
