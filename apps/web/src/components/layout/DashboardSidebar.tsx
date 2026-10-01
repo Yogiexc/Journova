@@ -27,10 +27,12 @@ export function DashboardSidebar() {
         </div>
 
         <nav className="space-y-1">
-          <Link href="/dashboard/author" className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors ${pathname === '/dashboard/author' ? 'bg-slate-200/50 dark:bg-slate-800 text-slate-900 dark:text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/50'}`}>
-            <Home className="w-4 h-4 text-slate-500" />
-            Author Dashboard
-          </Link>
+          {hasRole('AUTHOR') && (
+            <Link href="/dashboard/author" className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors ${pathname === '/dashboard/author' ? 'bg-slate-200/50 dark:bg-slate-800 text-slate-900 dark:text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/50'}`}>
+              <Home className="w-4 h-4 text-slate-500" />
+              Author Dashboard
+            </Link>
+          )}
           
           {hasRole('REVIEWER') && (
             <Link href="/dashboard/reviewer" className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors ${pathname === '/dashboard/reviewer' ? 'bg-slate-200/50 dark:bg-slate-800 text-slate-900 dark:text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/50'}`}>
