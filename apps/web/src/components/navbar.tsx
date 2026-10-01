@@ -33,7 +33,6 @@ export function Navbar() {
                 <div className="hidden md:flex items-center gap-4 border-r pr-4 mr-2">
                   <span className="text-sm font-medium text-slate-900 bg-slate-100 px-2 py-1 rounded-md">{user.name.charAt(0).toUpperCase()}</span>
                   <span className="text-sm font-medium text-slate-700">{user.name}</span>
-                  <Link href={getDefaultDashboardUrl(user.roles)} className="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Dashboard</Link>
                   <button onClick={() => logout()} className="text-sm font-medium text-rose-600 hover:text-rose-700 transition-colors">Logout</button>
                 </div>
                 <Link href={getDefaultDashboardUrl(user.roles)} className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2">
