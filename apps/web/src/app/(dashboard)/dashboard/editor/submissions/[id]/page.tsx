@@ -81,7 +81,7 @@ export default function EditorSubmissionViewPage({ params }: { params: { id: str
   const currentRound = submission.rounds && submission.rounds.length > 0 
     ? submission.rounds[submission.rounds.length - 1] 
     : null;
-  const assignments = currentRound ? currentRound.assignments : [];
+  const assignments = currentRound?.assignments || [];
 
   return (
     <div className="max-w-5xl">
