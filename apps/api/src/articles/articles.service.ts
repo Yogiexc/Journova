@@ -243,6 +243,6 @@ export class ArticlesService {
       throw new NotFoundException('PDF file is missing');
     }
 
-    return this.storageService.getFileStream(fileRecord.storage_key);
+    return this.storageService.getFileStream(fileRecord.storage_key, fileRecord.storage_provider);
   }
 }
