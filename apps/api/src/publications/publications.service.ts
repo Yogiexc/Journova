@@ -116,8 +116,7 @@ export class PublicationsService {
 
     const uniqueSuffix = crypto.randomUUID();
     const storageKey = `articles/${articleId}/${stage.toLowerCase()}-${uniqueSuffix}.pdf`;
-    
-    await this.storageService.uploadFile(storageKey, fileData.buffer);
+    const { key, provider } = await this.storageService.uploadFile(storageKey, fileData.buffer);
 
     // Determine version number
     const existingFiles = await this.prisma.editorialFile.findMany({
@@ -129,8 +128,8 @@ export class PublicationsService {
     return this.prisma.$transaction(async (tx: any) => {
       const file = await tx.file.create({
         data: {
-          storage_provider: 'local', // Consistent casing
-          storage_key: storageKey,
+          storage_provider: provider,
+          storage_key: key,
           original_name: fileData.originalname,
           mime_type: fileData.mimetype,
           size: fileData.size,
