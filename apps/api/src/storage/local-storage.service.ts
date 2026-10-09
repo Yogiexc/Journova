@@ -1,15 +1,14 @@
 import { Injectable, InternalServerErrorException, NotFoundException, StreamableFile } from '@nestjs/common';
-import { StorageService } from './storage.service.js';
 import * as fs from 'fs';
 import * as path from 'path';
 
 @Injectable()
-export class LocalStorageService implements StorageService {
+export class LocalStorageService {
   private get uploadDir(): string {
     return path.join(process.cwd(), 'uploads');
   }
 
-  async uploadFile(key: string, fileData: Buffer): Promise<string> {
+  async uploadLocalFile(key: string, fileData: Buffer): Promise<string> {
     try {
       const filePath = path.join(this.uploadDir, key);
       // Validate path traversal
@@ -26,7 +25,7 @@ export class LocalStorageService implements StorageService {
     }
   }
 
-  async getFileStream(key: string): Promise<StreamableFile> {
+  async getLocalFileStream(key: string): Promise<StreamableFile> {
     const filePath = path.join(this.uploadDir, key);
     
     // Validate path traversal
