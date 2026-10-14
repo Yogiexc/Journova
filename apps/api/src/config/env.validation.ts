@@ -13,8 +13,25 @@ export const envValidationSchema = Joi.object({
   COOKIE_HTTP_ONLY: Joi.boolean().default(true),
   COOKIE_SAME_SITE: Joi.string().valid('strict', 'lax', 'none').default('lax'),
   COOKIE_DOMAIN: Joi.string().allow('', null).default(''),
-  STORAGE_PROVIDER: Joi.string().valid('local', 's3', 'r2').default('local'),
-  S3_BUCKET: Joi.string().allow('', null).optional(),
-  S3_REGION: Joi.string().allow('', null).optional(),
-  S3_ENDPOINT: Joi.string().allow('', null).optional(),
+  STORAGE_PROVIDER: Joi.string().valid('local', 'r2').default('local'),
+  R2_ACCOUNT_ID: Joi.string().when('STORAGE_PROVIDER', {
+    is: 'r2',
+    then: Joi.string().required(),
+    otherwise: Joi.string().allow('', null).optional(),
+  }),
+  R2_ACCESS_KEY_ID: Joi.string().when('STORAGE_PROVIDER', {
+    is: 'r2',
+    then: Joi.string().required(),
+    otherwise: Joi.string().allow('', null).optional(),
+  }),
+  R2_SECRET_ACCESS_KEY: Joi.string().when('STORAGE_PROVIDER', {
+    is: 'r2',
+    then: Joi.string().required(),
+    otherwise: Joi.string().allow('', null).optional(),
+  }),
+  R2_BUCKET_NAME: Joi.string().when('STORAGE_PROVIDER', {
+    is: 'r2',
+    then: Joi.string().required(),
+    otherwise: Joi.string().allow('', null).optional().default('journova-storage'),
+  }),
 });
