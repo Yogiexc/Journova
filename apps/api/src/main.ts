@@ -15,50 +15,26 @@ async function bootstrap() {
   });
   const configService = app.get(ConfigService);
   
+  // Enable CORS first before helmet and filters
+  app.enableCors({
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      // In production, allow all origins or matching vercel/localhost domains
+      callback(null, true);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+  });
+
   // Apply Global Middleware
   app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", "data:", "validator.swagger.io"],
-      },
-    },
+    contentSecurityPolicy: false,
   }));
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalInterceptors(new TransformInterceptor());
-  
-  const corsOriginsRaw = configService.get<string>('CORS_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000');
-  const allowedOrigins = corsOriginsRaw
-    .split(',')
-    .map(origin => origin.trim())
-    .filter(Boolean);
-
-  app.enableCors({
-    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      if (!origin) return callback(null, true);
-      
-      const isAllowed = allowedOrigins.some(pattern => {
-        if (pattern === origin) return true;
-        if (pattern.includes('*')) {
-          const regex = new RegExp('^' + pattern.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$');
-          return regex.test(origin);
-        }
-        return false;
-      });
-
-      if (isAllowed || origin.endsWith('.vercel.app')) {
-        callback(null, true);
-      } else {
-        callback(null, false);
-      }
-    },
-    credentials: true,
-  });
 
   const config = new DocumentBuilder()
     .setTitle('Journova API')
