@@ -19,10 +19,21 @@ async function getArticle(slug: string) {
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const article = await getArticle(params.slug);
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://journova.com';
   if (!article) return { title: 'Not Found' };
   return {
-    title: article.title,
+    title: `${article.title} | Journova`,
     description: article.abstract?.substring(0, 160) || 'Research article published in Journova.',
+    alternates: {
+      canonical: `${baseUrl}/articles/${article.slug}`,
+    },
+    openGraph: {
+      title: article.title,
+      description: article.abstract?.substring(0, 160),
+      url: `${baseUrl}/articles/${article.slug}`,
+      type: 'article',
+      publishedTime: article.published_at,
+    },
   };
 }
 

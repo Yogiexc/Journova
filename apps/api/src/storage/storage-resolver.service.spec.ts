@@ -1,3 +1,4 @@
+import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { StorageResolverService } from './storage-resolver.service.js';
 import { LocalStorageService } from './local-storage.service.js';
@@ -19,21 +20,21 @@ describe('StorageResolverService', () => {
         {
           provide: LocalStorageService,
           useValue: {
-            uploadLocalFile: vitest.fn(),
-            getLocalFileStream: vitest.fn(),
+            uploadLocalFile: vi.fn(),
+            getLocalFileStream: vi.fn(),
           },
         },
         {
           provide: R2StorageService,
           useValue: {
-            uploadR2File: vitest.fn(),
-            getR2FileStream: vitest.fn(),
+            uploadR2File: vi.fn(),
+            getR2FileStream: vi.fn(),
           },
         },
         {
           provide: ConfigService,
           useValue: {
-            get: vitest.fn(),
+            get: vi.fn(),
           },
         },
       ],
@@ -47,8 +48,8 @@ describe('StorageResolverService', () => {
 
   describe('uploadFile', () => {
     it('should use LocalStorageService when STORAGE_PROVIDER is local', async () => {
-      vitest.spyOn(configService, 'get').mockReturnValue('local');
-      vitest.spyOn(localService, 'uploadLocalFile').mockResolvedValue('test-key');
+      vi.spyOn(configService, 'get').mockReturnValue('local');
+      vi.spyOn(localService, 'uploadLocalFile').mockResolvedValue('test-key');
 
       const result = await resolver.uploadFile('test-key', Buffer.from('test'));
 
@@ -58,8 +59,8 @@ describe('StorageResolverService', () => {
     });
 
     it('should use R2StorageService when STORAGE_PROVIDER is r2', async () => {
-      vitest.spyOn(configService, 'get').mockReturnValue('r2');
-      vitest.spyOn(r2Service, 'uploadR2File').mockResolvedValue('test-key');
+      vi.spyOn(configService, 'get').mockReturnValue('r2');
+      vi.spyOn(r2Service, 'uploadR2File').mockResolvedValue('test-key');
 
       const result = await resolver.uploadFile('test-key', Buffer.from('test'));
 
@@ -72,7 +73,7 @@ describe('StorageResolverService', () => {
   describe('getFileStream', () => {
     it('should route to LocalStorageService when provider is local', async () => {
       const mockStream = new StreamableFile(Buffer.from(''));
-      vitest.spyOn(localService, 'getLocalFileStream').mockResolvedValue(mockStream);
+      vi.spyOn(localService, 'getLocalFileStream').mockResolvedValue(mockStream);
 
       const result = await resolver.getFileStream('test-key', 'local');
 
@@ -82,7 +83,7 @@ describe('StorageResolverService', () => {
 
     it('should route to R2StorageService when provider is r2', async () => {
       const mockStream = new StreamableFile(Buffer.from(''));
-      vitest.spyOn(r2Service, 'getR2FileStream').mockResolvedValue(mockStream);
+      vi.spyOn(r2Service, 'getR2FileStream').mockResolvedValue(mockStream);
 
       const result = await resolver.getFileStream('test-key', 'r2');
 
@@ -92,7 +93,7 @@ describe('StorageResolverService', () => {
 
     it('should route mock to local or throw', async () => {
       const mockStream = new StreamableFile(Buffer.from(''));
-      vitest.spyOn(localService, 'getLocalFileStream').mockResolvedValue(mockStream);
+      vi.spyOn(localService, 'getLocalFileStream').mockResolvedValue(mockStream);
 
       const result = await resolver.getFileStream('test-key', 'mock');
 

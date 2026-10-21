@@ -34,4 +34,8 @@ export const envValidationSchema = Joi.object({
     then: Joi.string().required(),
     otherwise: Joi.string().allow('', null).optional().default('journova-storage'),
   }),
+  CROSSREF_ENDPOINT: Joi.string().uri().default('https://test.crossref.org/servlet/deposit'),
+  CROSSREF_USERNAME: Joi.string().allow('', null).default(''),
+  CROSSREF_PASSWORD: Joi.string().allow('', null).default(''),
+  CROSSREF_DEPOSIT_MODE: Joi.string().valid('mock', 'live').default('mock'),
 });

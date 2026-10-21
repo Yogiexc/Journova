@@ -32,8 +32,21 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalInterceptors(new TransformInterceptor());
   
+  const corsOriginsRaw = configService.get<string>('CORS_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000');
+  const allowedOrigins = corsOriginsRaw
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(Boolean);
+
   app.enableCors({
-    origin: true,
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      // Allow requests with no origin (like mobile apps, curl, server-to-server) or matching allowlist
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS blocked for origin: ${origin}`));
+      }
+    },
     credentials: true,
   });
 
