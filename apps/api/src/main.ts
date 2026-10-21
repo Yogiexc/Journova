@@ -40,11 +40,21 @@ async function bootstrap() {
 
   app.enableCors({
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      // Allow requests with no origin (like mobile apps, curl, server-to-server) or matching allowlist
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin) return callback(null, true);
+      
+      const isAllowed = allowedOrigins.some(pattern => {
+        if (pattern === origin) return true;
+        if (pattern.includes('*')) {
+          const regex = new RegExp('^' + pattern.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$');
+          return regex.test(origin);
+        }
+        return false;
+      });
+
+      if (isAllowed || origin.endsWith('.vercel.app')) {
         callback(null, true);
       } else {
-        callback(new Error(`CORS blocked for origin: ${origin}`));
+        callback(null, false);
       }
     },
     credentials: true,
