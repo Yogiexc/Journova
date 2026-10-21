@@ -15,15 +15,14 @@ async function bootstrap() {
   });
   const configService = app.get(ConfigService);
   
-  // Enable CORS first before helmet and filters
+  // Enable standard CORS handling
   app.enableCors({
-    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      // In production, allow all origins or matching vercel/localhost domains
-      callback(null, true);
-    },
+    origin: true,
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type,Accept,Authorization,X-Requested-With,Origin',
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   });
 
   // Apply Global Middleware
