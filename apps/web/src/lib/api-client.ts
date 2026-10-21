@@ -9,13 +9,10 @@ export const getAccessToken = () => {
 };
 
 const getApiBaseUrl = () => {
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL.replace(/\/api\/v1\/?$/, '').replace(/\/$/, '');
+  if (typeof window !== 'undefined') {
+    return ''; // Use same-origin relative URLs in browser to proxy through Next.js rewrites (zero CORS issues!)
   }
-  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    return 'https://journova-api-production.up.railway.app';
-  }
-  return 'http://localhost:3001';
+  return process.env.NEXT_PUBLIC_API_URL || 'https://journova-api-production.up.railway.app';
 };
 
 const API_BASE_URL = getApiBaseUrl();
