@@ -13,9 +13,12 @@ export const metadata: Metadata = {
   description: "An open-access editorial platform dedicated to the rapid dissemination of high-quality, peer-reviewed research.",
   keywords: ["Journal", "Research", "Open Access", "Scientific Publishing", "Peer Review"],
   icons: {
-    icon: "/icon.png",
-    shortcut: "/favicon.ico",
-    apple: "/icon.png",
+    icon: [
+      { url: "/icon.png?v=2", type: "image/png" },
+      { url: "/favicon.ico?v=2", sizes: "any" }
+    ],
+    shortcut: "/favicon.ico?v=2",
+    apple: "/icon.png?v=2",
   },
 };
 

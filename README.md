@@ -1,7 +1,7 @@
 # 📖 Journova
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Yogiexc/Journova/main/apps/web/public/favicon.ico" width="80" height="80" alt="Journova Logo" />
+  <img src="https://raw.githubusercontent.com/Yogiexc/Journova/main/apps/web/public/logo.png" width="220" alt="Journova Logo" />
 </p>
 
 <h3 align="center">Modernizing Scientific Publishing & Academic Journal Management</h3>
