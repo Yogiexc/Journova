@@ -1,97 +1,140 @@
 # 📖 Journova
 
-**Modernizing Scientific Publishing.**
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Yogiexc/Journova/main/apps/web/public/favicon.ico" width="80" height="80" alt="Journova Logo" />
+</p>
 
-Journova is a modern, modular, and mobile-first platform for academic journal management and publishing. Built as an advanced alternative to traditional systems like OJS, it seamlessly integrates manuscript submissions, peer review, editorial decisions, issue management, and scholarly metadata distribution into a single unified ecosystem.
+<h3 align="center">Modernizing Scientific Publishing & Academic Journal Management</h3>
 
-## 🚀 Features
+<p align="center">
+  A state-of-the-art, high-performance, and responsive open-access journal publishing platform built with Next.js, NestJS, Prisma, and PostgreSQL. Designed as a modern alternative to Open Journal Systems (OJS).
+</p>
 
-- **Multi-Journal Architecture:** Manage multiple independent journals under one platform.
-- **Distinct Workflows:** Clear separation between `Article` (published content) and `Submission` (editorial process).
-- **Advanced Peer Review:** Support for Double Blind and Single Blind peer review assignments.
-- **Robust Access Control:** RBAC (Role-Based Access Control) for Admins, Editors, Reviewers, and Authors.
-- **Modern UI/UX:** Built with Next.js 16, Tailwind CSS, and shadcn/ui.
-- **Scalable Backend:** Powered by NestJS and PostgreSQL via Prisma ORM.
+<p align="center">
+  <a href="https://journova-web.vercel.app"><strong>Explore Live Demo »</strong></a>
+  <br />
+  <a href="https://journova-api-production.up.railway.app/api/docs">API Documentation (Swagger)</a>
+  ·
+  <a href="https://github.com/Yogiexc/Journova/issues">Report Bug</a>
+  ·
+  <a href="https://github.com/Yogiexc/Journova/issues">Request Feature</a>
+</p>
 
-## 🏗️ Architecture (Monorepo)
-
-Journova uses an NPM workspaces monorepo structure:
-- `apps/web`: Next.js 16 frontend (App Router)
-- `apps/api`: NestJS REST API backend
-- `packages/database`: Prisma schema, migrations, and seed scripts
-
-## 🛠️ Technology Stack
-
-| Layer | Technology |
-| --- | --- |
-| **Frontend** | Next.js 16, TypeScript, Tailwind CSS, shadcn/ui |
-| **Backend** | NestJS, REST API |
-| **Database** | PostgreSQL (Neon), Prisma ORM |
-| **File Storage** | Cloudflare R2 |
-| **Deployment** | Vercel (Web & API) |
-
-## 📦 Getting Started
-
-### Prerequisites
-- Node.js >= 20
-- PostgreSQL database
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Yogiexc/Journova.git
-   cd Journova
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Set up environment variables:
-   - Configure `.env` in `packages/database` with your `DATABASE_URL`.
-4. Sync database schema & seed initial data:
-   ```bash
-   npm run db:push
-   npm run db:seed -w database
-   ```
-5. Start development servers:
-   ```bash
-   npm run dev:api  # Starts NestJS
-   npm run dev:web  # Starts Next.js
-   ```
-
-## 📜 License
-Internal Project.
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-14.2-black?logo=next.js" alt="Next.js" />
+  <img src="https://img.shields.io/badge/NestJS-10.0-E0234E?logo=nestjs" alt="NestJS" />
+  <img src="https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Prisma-5.10-2D3748?logo=prisma" alt="Prisma" />
+  <img src="https://img.shields.io/badge/TailwindCSS-3.4-38B2AC?logo=tailwind-css" alt="Tailwind" />
+  <img src="https://img.shields.io/badge/PostgreSQL-Neon-00E599?logo=postgresql" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Cloudflare-R2_Storage-F38020?logo=cloudflare" alt="Cloudflare R2" />
+  <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License" />
+</p>
 
 ---
 
-## 🗺️ Development Phases & Roadmap
+## 🌐 Live Production Deployments
 
-### ✅ Phase 10: DOI Workflow & Deposit Architecture
-- Implementation of `DoiDeposit` state machine.
-- Mock DOI deposit and retry mechanisms.
-- DOI metadata and Crossref XML preparation scaffolding.
+| Component | Platform | Live URL | Status |
+|---|---|---|---|
+| **Web Frontend** | Vercel | [journova-web.vercel.app](https://journova-web.vercel.app) | ![Vercel](https://img.shields.io/badge/Vercel-Live-success?logo=vercel) |
+| **REST API Server** | Railway | [journova-api-production.up.railway.app](https://journova-api-production.up.railway.app/api/docs) | ![Railway](https://img.shields.io/badge/Railway-Live-success?logo=railway) |
+| **Database** | Neon Cloud | Serverless PostgreSQL (us-east-2) | ![Neon](https://img.shields.io/badge/Neon-Connected-success?logo=postgresql) |
 
-### ✅ Phase 10.5: Stabilization & Integration Audit
-- **Status:** **COMPLETE** (Evidence verified)
-- Security, Auth, RBAC, and IDOR enforcement.
-- Transactions, state machine boundaries, and error handling (Prisma exceptions mapped).
-- Negative testing and migration validation successful.
-- **Known MVP Limitations:**
-  1. DOI registration is currently a **MOCK**.
-  2. File storage relies on the local filesystem.
-  3. Cloud/multi-server storage architecture is not yet implemented.
-  4. Real Crossref API integration is not validated against live servers.
+---
 
-### ⏳ Phase 11: Production Hardening & Release Readiness (Next Up)
-1. Environment configuration audit & production `.env` separation.
-2. CORS and Cookie security hardening.
-3. File storage abstraction.
-4. Logging, monitoring, and API documentation.
-5. Frontend empty states, error/loading UI.
-6. SEO Metadata and Security Headers.
-7. Rate limiting & Database backup strategy.
-8. Deployment configuration and production smoke testing.
+## ✨ Key Features
 
-### 🚀 Phase 12: Real DOI / Crossref Integration
-- Transitioning Mock DOI to live Crossref API.
+- **Multi-Role Academic Workflow:** Specialized dashboards for **Author**, **Editor**, **Reviewer**, and **Super Admin**.
+- **End-to-End Peer Review:** Single-blind and double-blind peer review assignments, reviewer scoring, and editorial recommendations.
+- **Publication & Issue Management:** Group articles into Volumes and Issues with scheduled digital publication.
+- **Cloudflare R2 Dual-Provider Storage:** Secure file storage with path-traversal protection and dynamic streaming downloads for manuscripts and published PDFs.
+- **Crossref DOI Integration:** Schema 4.4.2 XML metadata generation and automated HTTPS POST deposit with tracking states (`PENDING`, `SUBMITTED`, `SUCCESS`, `FAILED`).
+- **Comprehensive API & Security:** JWT Access & Refresh token rotation, Argon2 password hashing, strict production CORS allowlists, Rate Limiting (Throttler), and Helmet CSP headers.
+- **Modern Scholarly SEO:** Dynamic XML Sitemap generator (`/sitemap.xml`), robots.txt, Canonical URLs, Schema.org `ScholarlyArticle` JSON-LD, and OpenGraph tags.
+
+---
+
+## 🔐 Default Demo Accounts
+
+All demo accounts use the standard password: **`Password123!`**
+
+| Role | Email | Capabilities |
+|---|---|---|
+| **Super Admin** | `admin@journova.com` | Complete system management, user role control, journal settings |
+| **Editor** | `editor@test.com` | Submission triage, reviewer assignment, issue publication, DOI deposit |
+| **Reviewer** | `reviewer@test.com` | Review assigned manuscripts, submit scores & review remarks |
+| **Author** | `author@test.com` | Submit new manuscripts, track revisions, download proof copies |
+
+---
+
+## 🏗️ Project Architecture (Monorepo)
+
+```text
+journova/
+├── apps/
+│   ├── api/             # NestJS REST API Server
+│   │   ├── src/
+│   │   │   ├── auth/          # JWT & Argon2 Authentication & RBAC Guards
+│   │   │   ├── articles/      # Article querying & public metadata
+│   │   │   ├── submissions/   # Author manuscript submission workflow
+│   │   │   ├── reviews/       # Peer review assignments & feedback
+│   │   │   ├── issues/        # Volumes, Issues, & Issue Publication
+│   │   │   ├── storage/       # Dual-provider Storage (Local & Cloudflare R2)
+│   │   │   └── doi/           # Crossref v4.4.2 XML Builder & HTTPS Deposit
+│   └── web/             # Next.js 14 Web Application (App Router)
+│       └── src/
+│           ├── app/(public)/   # Landing page, archive, issue, & article reader
+│           ├── app/(auth)/     # Sign in & Sign up flows
+│           └── app/(dashboard)/# Role-based dashboards (Author, Editor, Reviewer)
+├── packages/
+│   └── database/        # Prisma Schema, Migrations, & Production Seed Script
+└── .github/workflows/   # CI/CD Automated Build & Test Pipeline
+```
+
+---
+
+## 🛠️ Local Development Setup
+
+### 1. Clone & Install
+```bash
+git clone https://github.com/Yogiexc/Journova.git
+cd Journova
+npm install
+```
+
+### 2. Configure Environment
+Copy `.env.example` to your environment files:
+```bash
+cp .env.example .env
+```
+Ensure your PostgreSQL connection string is set in `DATABASE_URL`.
+
+### 3. Database Migration & Seed
+```bash
+npm run db:push
+npm run seed -w api
+```
+
+### 4. Run Development Servers
+```bash
+npm run dev:api   # Runs NestJS on http://localhost:3001
+npm run dev:web   # Runs Next.js on http://localhost:3000
+```
+
+---
+
+## 🧪 Testing & Code Quality
+
+```bash
+# Run Core Test Suite (Storage Resolver, Path Traversal, Crossref, & Env Validation)
+npm run test
+
+# Run Typecheck & Production Build
+npm run build
+```
+
+---
+
+## 📄 License
+This project is licensed under the [MIT License](LICENSE).

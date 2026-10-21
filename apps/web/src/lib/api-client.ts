@@ -9,10 +9,13 @@ export const getAccessToken = () => {
 };
 
 const getApiBaseUrl = () => {
-  if (typeof window !== 'undefined') {
-    return `${window.location.protocol}//${window.location.hostname}:3001`;
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL.replace(/\/api\/v1\/?$/, '').replace(/\/$/, '');
   }
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return 'https://journova-api-production.up.railway.app';
+  }
+  return 'http://localhost:3001';
 };
 
 const API_BASE_URL = getApiBaseUrl();
