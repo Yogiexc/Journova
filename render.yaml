@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: journova-api
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install && npx prisma generate --schema=packages/database/prisma/schema.prisma && npm run build:api
+    startCommand: npm run start:api
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: STORAGE_PROVIDER
+        value: local
+      - key: CORS_ORIGINS
+        value: "http://localhost:3000,https://journova.vercel.app"
+      - key: FRONTEND_URL
+        value: "https://journova.vercel.app"
