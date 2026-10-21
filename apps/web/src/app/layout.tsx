@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   },
   description: "An open-access editorial platform dedicated to the rapid dissemination of high-quality, peer-reviewed research.",
   keywords: ["Journal", "Research", "Open Access", "Scientific Publishing", "Peer Review"],
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/favicon.ico",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({
