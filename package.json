@@ -10,6 +10,12 @@
     "db:generate": "npm run generate -w database",
     "db:push": "npm run db:push -w database",
     "dev:api": "npm run start:dev -w api",
-    "dev:web": "npm run dev -w web"
+    "dev:web": "npm run dev -w web",
+    "build:api": "npm run build -w api",
+    "build:web": "npm run build -w web",
+    "build": "npm run build:api && npm run build:web",
+    "start:api": "npm run start:prod -w api",
+    "start:web": "npm run start -w web",
+    "test": "vitest run"
   }
 }
