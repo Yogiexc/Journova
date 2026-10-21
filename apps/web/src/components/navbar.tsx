@@ -13,8 +13,9 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 w-full glass border-b">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-8">
         <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold tracking-tight text-primary">Journova</span>
+          <Link href="/" className="flex items-center gap-3">
+            <img src="/logo.png" alt="Journova Logo" className="h-10 w-auto object-contain" />
+            <span className="text-2xl font-bold tracking-tight text-primary font-serif">Journova</span>
           </Link>
           <div className="hidden md:flex gap-4">
             <Link href="/articles" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Articles</Link>

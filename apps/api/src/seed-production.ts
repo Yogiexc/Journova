@@ -4,7 +4,7 @@ import * as argon2 from 'argon2';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('--- Seeding Production Base Data ---');
+  console.log('--- Seeding Rich Production Sample Data ---');
 
   // 1. Roles
   const roles = [
@@ -23,72 +23,47 @@ async function main() {
     });
     roleMap[r.name] = createdRole;
   }
-  console.log('✅ Roles initialized: ADMIN, EDITOR, REVIEWER, AUTHOR');
 
-  // 2. Default Initial Users with Argon2 Hash
+  // 2. Default Users
   const defaultPassword = 'Password123!';
   const passwordHash = await argon2.hash(defaultPassword);
 
   const initialUsers = [
-    {
-      name: 'Super Admin',
-      email: 'admin@journova.com',
-      role: 'ADMIN',
-    },
-    {
-      name: 'Tono Editor',
-      email: 'editor@test.com',
-      role: 'EDITOR',
-    },
-    {
-      name: 'Siti Reviewer',
-      email: 'reviewer@test.com',
-      role: 'REVIEWER',
-    },
-    {
-      name: 'Budi Author',
-      email: 'author@test.com',
-      role: 'AUTHOR',
-    },
+    { name: 'Super Admin', email: 'admin@journova.com', role: 'ADMIN' },
+    { name: 'Tono Editor', email: 'editor@test.com', role: 'EDITOR' },
+    { name: 'Siti Reviewer', email: 'reviewer@test.com', role: 'REVIEWER' },
+    { name: 'Budi Author', email: 'author@test.com', role: 'AUTHOR' },
+    { name: 'Dr. Sarah Connor', email: 'sarah.author@test.com', role: 'AUTHOR' },
+    { name: 'Prof. Alan Turing', email: 'alan.reviewer@test.com', role: 'REVIEWER' },
   ];
 
+  const userMap: Record<string, any> = {};
   for (const u of initialUsers) {
     const user = await prisma.user.upsert({
       where: { email: u.email },
-      update: {
-        password_hash: passwordHash,
-        status: UserStatus.ACTIVE,
-      },
-      create: {
-        name: u.name,
-        email: u.email,
-        password_hash: passwordHash,
-        status: UserStatus.ACTIVE,
-      },
+      update: { password_hash: passwordHash, status: UserStatus.ACTIVE },
+      create: { name: u.name, email: u.email, password_hash: passwordHash, status: UserStatus.ACTIVE },
     });
+    userMap[u.email] = user;
 
     const targetRole = roleMap[u.role];
     if (targetRole) {
       await prisma.userRole.upsert({
         where: { user_id_role_id: { user_id: user.id, role_id: targetRole.id } },
         update: {},
-        create: {
-          user_id: user.id,
-          role_id: targetRole.id,
-        },
+        create: { user_id: user.id, role_id: targetRole.id },
       });
     }
   }
-  console.log('✅ Base Production Users created/updated with password: Password123!');
 
-  // 3. Official Journova Journal
+  // 3. Official Journal
   const journal = await prisma.journal.upsert({
     where: { slug: 'journova-digital-innovation' },
     update: {},
     create: {
       name: 'Journova Journal of Digital Innovation',
       slug: 'journova-digital-innovation',
-      description: 'An open-access peer-reviewed journal focusing on state-of-the-art digital innovation, artificial intelligence, and software engineering.',
+      description: 'An international open-access peer-reviewed journal publishing transformative research across digital systems, artificial intelligence, and scalable software architectures.',
       issn: '2775-8899',
       publisher: 'Journova Press',
       doi_prefix: '10.5555',
@@ -108,14 +83,14 @@ async function main() {
     },
   });
 
-  await prisma.issue.upsert({
+  const issue = await prisma.issue.upsert({
     where: { volume_id_issue_number: { volume_id: volume.id, issue_number: 1 } },
     update: {},
     create: {
       journal_id: journal.id,
       volume_id: volume.id,
       issue_number: 1,
-      title: 'Inaugural Issue',
+      title: 'Inaugural Issue: Advances in Scalable Intelligent Systems',
       month: 10,
       year: 2026,
       status: 'PUBLISHED',
@@ -123,8 +98,105 @@ async function main() {
     },
   });
 
-  console.log('✅ Official Journal & Volume/Issue ready.');
-  console.log('--- Production Seed Completed Successfully ---');
+  // 5. Rich Published Sample Articles
+  const sampleArticles = [
+    {
+      title: 'Architecting Resilient Distributed Systems with Event-Driven NestJS',
+      slug: 'architecting-resilient-distributed-systems',
+      abstract: 'Modern web architectures require fault-tolerant distributed communication. This study examines transactional outbox patterns, message broker clustering, and dual-provider object storage resilience in mission-critical applications.',
+      doi: '10.5555/journova.v1.i1.architecting-resilient-distributed-systems',
+      page_start: '1',
+      page_end: '18',
+    },
+    {
+      title: 'Next-Generation Academic Publishing: Zero-CORS Proxies and Federated Scholarly Metadata',
+      slug: 'next-gen-academic-publishing-zero-cors',
+      abstract: 'Academic preprint distribution often struggles with Cross-Origin resource constraints and fragmented metadata schemas. We propose a decoupled reverse-proxy pipeline compliant with Crossref Schema 4.4.2.',
+      doi: '10.5555/journova.v1.i1.next-gen-academic-publishing-zero-cors',
+      page_start: '19',
+      page_end: '34',
+    },
+    {
+      title: 'Deep Learning Optimizations for Automated Peer Reviewer Matching in Scientific Journals',
+      slug: 'deep-learning-automated-peer-reviewer-matching',
+      abstract: 'Assigning qualified peer reviewers is an editorial bottleneck. We benchmark semantic embedding models on scholarly abstracts to increase assignment fairness and double-blind adherence.',
+      doi: '10.5555/journova.v1.i1.deep-learning-automated-peer-reviewer-matching',
+      page_start: '35',
+      page_end: '52',
+    },
+  ];
+
+  for (const art of sampleArticles) {
+    const createdArticle = await prisma.article.upsert({
+      where: { slug: art.slug },
+      update: {
+        issue_id: issue.id,
+        status: 'PUBLISHED',
+        published_at: new Date(),
+      },
+      create: {
+        journal_id: journal.id,
+        issue_id: issue.id,
+        title: art.title,
+        slug: art.slug,
+        abstract: art.abstract,
+        doi: art.doi,
+        status: 'PUBLISHED',
+        published_at: new Date(),
+      },
+    });
+
+    // Author link
+    const authorUser = userMap['author@test.com'];
+    if (authorUser) {
+      const existingAuthor = await prisma.author.findFirst({ where: { user_id: authorUser.id } });
+      const authorId = existingAuthor ? existingAuthor.id : (await prisma.author.create({
+        data: {
+          user_id: authorUser.id,
+          full_name: 'Budi Santoso, Ph.D.',
+          affiliation: 'Institute of Advanced Computer Systems',
+        }
+      })).id;
+
+      await prisma.articleAuthor.upsert({
+        where: { article_id_author_id: { article_id: createdArticle.id, author_id: authorId } },
+        update: {},
+        create: {
+          article_id: createdArticle.id,
+          author_id: authorId,
+          author_order: 1,
+        },
+      });
+    }
+  }
+
+  // 6. Active Sample Submissions for Editor and Reviewer Workspace
+  const reviewArticle = await prisma.article.upsert({
+    where: { slug: 'evaluating-zk-proofs-academic-credentialing' },
+    update: {},
+    create: {
+      journal_id: journal.id,
+      title: 'Evaluating Zero-Knowledge Cryptographic Proofs for Decentralized Academic Credentialing',
+      slug: 'evaluating-zk-proofs-academic-credentialing',
+      abstract: 'Decentralized identity verification in scientific peer review ensures anonymous accountability without sacrificing contributor integrity. This paper details a novel zk-SNARK protocol tailored for academic peer reviews.',
+      status: 'UNDER_REVIEW',
+    },
+  });
+
+  await prisma.submission.upsert({
+    where: { id: '00000000-0000-0000-0000-000000000001' },
+    update: {},
+    create: {
+      id: '00000000-0000-0000-0000-000000000001',
+      article_id: reviewArticle.id,
+      submitted_by: userMap['author@test.com'].id,
+      status: 'UNDER_REVIEW',
+      submitted_at: new Date(),
+    },
+  });
+
+  console.log('✅ Rich Articles, Issues, Authors, and Submissions initialized.');
+  console.log('--- Rich Sample Seed Completed Successfully ---');
 }
 
 main()
