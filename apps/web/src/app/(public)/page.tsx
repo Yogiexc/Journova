@@ -3,7 +3,7 @@ import { ArticleCard } from '@/components/articles/ArticleCard';
 
 async function getLatestArticles() {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://journova-api-production.up.railway.app/api/v1';
     const res = await fetch(`${apiUrl}/articles?limit=3`, {
       cache: 'no-store'
     });
@@ -18,7 +18,7 @@ async function getLatestArticles() {
 
 async function getLatestIssue() {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://journova-api-production.up.railway.app/api/v1';
     const res = await fetch(`${apiUrl}/issues`, {
       cache: 'no-store'
     });

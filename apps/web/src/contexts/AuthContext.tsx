@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchUser = async (): Promise<User | null> => {
     try {
-      const res = await fetchApi('/api/v1/auth/me');
+      const res = await fetchApi('/api/v1/auth/me', { requireAuth: false });
       if (res && res.data) {
         setUser(res.data);
         return res.data;

@@ -3,7 +3,7 @@ import { ArticleCard } from '@/components/articles/ArticleCard';
 import { notFound } from 'next/navigation';
 
 async function getIssue(id: string) {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://journova-api-production.up.railway.app/api/v1';
   const res = await fetch(`${apiUrl}/issues/${id}`, { cache: 'no-store' });
   
   if (!res.ok) {

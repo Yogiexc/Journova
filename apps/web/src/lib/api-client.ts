@@ -58,7 +58,7 @@ export const fetchApi = async (endpoint: string, options: FetchOptions = {}) => 
             return newAccessToken;
           } else {
             setAccessToken(null);
-            if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/register')) {
+            if (typeof window !== 'undefined' && window.location.pathname.startsWith('/dashboard')) {
               window.location.href = '/login';
             }
             return null;

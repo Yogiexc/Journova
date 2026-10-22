@@ -5,7 +5,7 @@ import { FileText, Download, Share2, BookOpen } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
 async function getArticle(slug: string) {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://journova-api-production.up.railway.app/api/v1';
   const res = await fetch(`${apiUrl}/articles/${slug}`, { cache: 'no-store' });
   
   if (!res.ok) {
@@ -44,7 +44,7 @@ export default async function ArticleDetailPage({ params }: { params: { slug: st
     notFound();
   }
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://journova-api-production.up.railway.app/api/v1';
   const pdfUrl = article.pdf_url ? `${apiUrl.replace('/api/v1', '')}${article.pdf_url}` : null;
 
   const jsonLd = {

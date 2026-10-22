@@ -12,7 +12,7 @@ async function getArticles(searchParams: any) {
   if (searchParams.sort) query.append('sort', searchParams.sort);
 
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://journova-api-production.up.railway.app/api/v1';
     const res = await fetch(`${apiUrl}/articles?${query.toString()}`, {
       cache: 'no-store'
     });

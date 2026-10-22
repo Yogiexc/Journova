@@ -2,7 +2,7 @@ import { IssueCard } from '@/components/issues/IssueCard';
 
 async function getIssues() {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://journova-api-production.up.railway.app/api/v1';
     const res = await fetch(`${apiUrl}/issues`, { cache: 'no-store' });
     if (!res.ok) return [];
     const json = await res.json();
