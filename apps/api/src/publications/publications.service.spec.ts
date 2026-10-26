@@ -22,7 +22,7 @@ describe('PublicationsService (Isolated Storage & PDF Binary Validation)', () =>
         create: vi.fn().mockResolvedValue({
           id: 'mock-editorial-file-id',
           article_id: 'art-123',
-          stage: EditorialFileStage.COPYEDITING,
+          stage: EditorialFileStage.COPYEDIT,
           version: 1,
         }),
       },
@@ -67,7 +67,7 @@ describe('PublicationsService (Isolated Storage & PDF Binary Validation)', () =>
       'art-123',
       'user-editor-1',
       mockFile,
-      'COPYEDIT' as any,
+      EditorialFileStage.COPYEDIT,
       'Initial galley proof',
     );
 
@@ -90,7 +90,7 @@ describe('PublicationsService (Isolated Storage & PDF Binary Validation)', () =>
         'art-123',
         'user-editor-1',
         mockFile,
-        EditorialFileStage.COPYEDITING,
+        EditorialFileStage.COPYEDIT,
       ),
     ).rejects.toThrow(new BadRequestException('File is not a valid PDF'));
 
@@ -111,7 +111,7 @@ describe('PublicationsService (Isolated Storage & PDF Binary Validation)', () =>
         'art-123',
         'user-editor-1',
         mockFile,
-        EditorialFileStage.COPYEDITING,
+        EditorialFileStage.COPYEDIT,
       ),
     ).rejects.toThrow(new BadRequestException('File is empty'));
 
@@ -132,7 +132,7 @@ describe('PublicationsService (Isolated Storage & PDF Binary Validation)', () =>
         'art-123',
         'user-editor-1',
         mockFile,
-        EditorialFileStage.COPYEDITING,
+        EditorialFileStage.COPYEDIT,
       ),
     ).rejects.toThrow(new BadRequestException('Only PDF files are allowed'));
 
