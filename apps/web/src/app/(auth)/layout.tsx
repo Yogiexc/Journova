@@ -13,10 +13,9 @@ export default function AuthLayout({
           <div className="h-full w-full bg-[url('https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=1500&auto=format&fit=crop')] bg-cover bg-center" />
         </div>
         
-        <div className="relative z-10 flex items-center gap-3">
-          <img src="/logo.png" alt="Journova Logo" className="h-12 w-auto object-contain" />
-          <Link href="/" className="text-3xl font-serif font-bold tracking-tight">Journova</Link>
-        </div>
+        <Link href="/" className="relative z-10 inline-flex items-center group transition-transform hover:scale-[1.02]">
+          <img src="/logo.png" alt="Journova" className="h-12 w-auto object-contain drop-shadow" />
+        </Link>
         
         <div className="relative z-10 max-w-md">
           <h2 className="text-3xl font-serif mb-4 leading-tight">Modernizing Scientific Publishing</h2>

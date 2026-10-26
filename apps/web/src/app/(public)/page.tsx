@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArticleCard } from '@/components/articles/ArticleCard';
+import { IssueCoverPlaceholder } from '@/components/issues/IssueCoverPlaceholder';
 
 async function getLatestArticles() {
   try {
@@ -38,25 +39,38 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Editorial Identity / Hero */}
-      <section className="bg-slate-50 dark:bg-slate-950 py-20 border-b border-slate-200 dark:border-slate-800">
-        <div className="container mx-auto px-4 md:px-8 flex flex-col items-center text-center max-w-3xl">
-          <p className="uppercase tracking-widest text-xs font-semibold text-slate-500 mb-4">Journova Press</p>
-          <h1 className="text-4xl md:text-5xl font-serif text-slate-900 dark:text-white mb-6 leading-tight">
-            Modernizing Scientific Publishing
+      <section className="relative overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-24 border-b border-slate-200/80 dark:border-slate-800">
+        {/* Subtle Decorative Ambient Background */}
+        <div className="absolute inset-0 pointer-events-none opacity-30 dark:opacity-20">
+          <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[720px] h-[360px] bg-gradient-to-r from-amber-200/40 via-blue-200/30 to-amber-100/40 blur-3xl rounded-full" />
+        </div>
+
+        <div className="container relative z-10 mx-auto px-4 md:px-8 flex flex-col items-center text-center max-w-3xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 mb-6 shadow-xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+            <span className="uppercase tracking-[0.2em] text-[11px] font-semibold text-slate-700 dark:text-slate-300">
+              Journova Press • Open Access
+            </span>
+          </div>
+
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif text-slate-900 dark:text-white mb-6 leading-[1.15] tracking-tight">
+            Modernizing Scientific <span className="italic font-normal text-amber-700 dark:text-amber-400">Publishing</span>
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-400 mb-8 leading-relaxed font-serif">
-            An open-access editorial platform dedicated to the rapid dissemination of high-quality, peer-reviewed research.
+
+          <p className="text-lg md:text-xl text-slate-600 dark:text-slate-300 mb-10 leading-relaxed font-serif max-w-2xl font-light">
+            An open-access editorial platform dedicated to the rapid dissemination of high-impact, peer-reviewed research across multidisciplinary sciences.
           </p>
-          <div className="flex gap-4">
+
+          <div className="flex flex-wrap items-center justify-center gap-4">
             <Link 
               href="/articles"
-              className="inline-flex h-10 items-center justify-center rounded-md bg-slate-900 px-8 text-sm font-medium text-slate-50 shadow transition-colors hover:bg-slate-900/90 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/90"
+              className="inline-flex h-11 items-center justify-center rounded-md bg-slate-900 px-8 text-sm font-medium text-slate-50 shadow-md hover:shadow-lg transition-all hover:bg-slate-800 dark:bg-slate-50 dark:text-slate-950 dark:hover:bg-slate-200"
             >
               Browse Directory
             </Link>
             <Link 
               href="/login"
-              className="inline-flex h-10 items-center justify-center rounded-md border border-slate-200 bg-white px-8 text-sm font-medium shadow-sm transition-colors hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50"
+              className="inline-flex h-11 items-center justify-center rounded-md border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm px-8 text-sm font-medium text-slate-800 dark:text-slate-200 shadow-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
             >
               Submit Manuscript
             </Link>
@@ -96,21 +110,32 @@ export default async function HomePage() {
                 </h2>
                 {currentIssue ? (
                   <div className="flex flex-col gap-4">
-                    <div className="aspect-[3/4] rounded shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-100">
-                      {currentIssue.cover_image_url ? (
-                        <img src={currentIssue.cover_image_url} alt="Cover" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-slate-400 font-serif">No Cover</div>
-                      )}
-                    </div>
+                    <Link href={`/issues/${currentIssue.id}`} className="block group">
+                      <div className="aspect-[3/4] rounded-lg shadow-md hover:shadow-xl transition-all duration-300 border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-900 group-hover:scale-[1.01]">
+                        {currentIssue.cover_image_url ? (
+                          <img src={currentIssue.cover_image_url} alt={currentIssue.title} className="w-full h-full object-cover" />
+                        ) : (
+                          <IssueCoverPlaceholder
+                            volume={currentIssue.volume?.volume_number}
+                            issueNumber={currentIssue.issue_number}
+                            year={currentIssue.volume?.year}
+                            title={currentIssue.title}
+                          />
+                        )}
+                      </div>
+                    </Link>
                     <div>
-                      <h3 className="font-medium text-slate-900 dark:text-slate-100 mb-1">{currentIssue.title}</h3>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                      <h3 className="font-serif font-bold text-slate-900 dark:text-slate-100 text-lg mb-1 leading-snug">
+                        <Link href={`/issues/${currentIssue.id}`} className="hover:text-amber-600 transition-colors">
+                          {currentIssue.title}
+                        </Link>
+                      </h3>
+                      <p className="text-xs text-slate-500 uppercase tracking-wider font-sans font-medium">
                         Vol. {currentIssue.volume?.volume_number} No. {currentIssue.issue_number} • {currentIssue.volume?.year}
                       </p>
                     </div>
-                    <Link href={`/issues/${currentIssue.id}`} className="text-sm font-medium text-slate-900 hover:underline dark:text-white">
-                      View full issue →
+                    <Link href={`/issues/${currentIssue.id}`} className="inline-flex items-center text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-white hover:text-amber-600 transition-colors">
+                      View full issue <span className="ml-1 transition-transform group-hover:translate-x-1">→</span>
                     </Link>
                   </div>
                 ) : (
@@ -123,13 +148,19 @@ export default async function HomePage() {
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-900 dark:text-white mb-6 pb-2 border-b border-slate-200 dark:border-slate-800">
                   Announcements
                 </h2>
-                <div className="p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-sm">
-                  <h3 className="font-medium text-slate-900 dark:text-slate-100 mb-2">Call for Papers 2026</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
-                    We are currently accepting submissions for the upcoming special issue on Quantum AI Algorithms.
+                <div className="p-5 bg-gradient-to-br from-slate-50 to-amber-50/20 dark:from-slate-900 dark:to-slate-900/60 border border-slate-200/90 dark:border-slate-800 rounded-lg shadow-xs relative overflow-hidden">
+                  <div className="w-1 h-full bg-amber-500 absolute top-0 left-0" />
+                  <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-100/70 dark:bg-amber-950/60 px-2 py-0.5 rounded-sm mb-2.5">
+                    Call For Papers • 2026
+                  </span>
+                  <h3 className="font-serif font-bold text-slate-900 dark:text-slate-100 mb-2 text-base leading-snug">
+                    Special Issue on AI in Healthcare & Multidisciplinary Sciences
+                  </h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-4 leading-relaxed font-sans">
+                    Submissions are open for upcoming volume publications. Fast-track peer review and rapid digital publishing available for accepted manuscripts.
                   </p>
-                  <Link href="/author-guidelines" className="text-sm font-medium text-slate-900 hover:underline dark:text-white">
-                    Read Author Guidelines
+                  <Link href="/author-guidelines" className="inline-flex items-center text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-white hover:text-amber-600 transition-colors">
+                    Read Author Guidelines <span className="ml-1">→</span>
                   </Link>
                 </div>
               </div>

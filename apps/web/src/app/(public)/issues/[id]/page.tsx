@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArticleCard } from '@/components/articles/ArticleCard';
+import { IssueCoverPlaceholder } from '@/components/issues/IssueCoverPlaceholder';
 import { notFound } from 'next/navigation';
 
 async function getIssue(id: string) {
@@ -38,13 +39,16 @@ export default async function IssueDetailPage({ params }: { params: { id: string
       <div className="flex flex-col md:flex-row gap-12">
         {/* Sidebar: Issue Cover & Meta */}
         <aside className="w-full md:w-1/3 lg:w-1/4">
-          <div className="aspect-[3/4] bg-slate-100 dark:bg-slate-900 rounded-lg overflow-hidden shadow-md border border-slate-200 dark:border-slate-800 mb-6">
-            {issue.coverImage ? (
-              <img src={issue.coverImage} alt={issue.title} className="w-full h-full object-cover" />
+          <div className="aspect-[3/4] bg-slate-900 rounded-lg overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 mb-6">
+            {issue.coverImage || issue.cover_image_url ? (
+              <img src={issue.coverImage || issue.cover_image_url} alt={issue.title} className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-slate-400 font-serif text-center p-4 bg-slate-50 dark:bg-slate-800">
-                Vol. {issue.volume?.volume_number} No. {issue.issue_number}
-              </div>
+              <IssueCoverPlaceholder
+                volume={issue.volume?.volume_number}
+                issueNumber={issue.issue_number}
+                year={issue.volume?.year}
+                title={issue.title}
+              />
             )}
           </div>
           <div className="space-y-4 text-sm text-slate-600 dark:text-slate-400">

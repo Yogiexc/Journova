@@ -1,17 +1,28 @@
 import Link from 'next/link';
 import { type Issue } from '@/data/issues';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { IssueCoverPlaceholder } from './IssueCoverPlaceholder';
 
 export function IssueCard({ issue }: { issue: Issue }) {
+  const volNumber = typeof issue.volume === 'object' ? (issue.volume as any).volume_number : issue.volume;
+  const issueNum = (issue as any).issue_number || issue.number;
+  const year = typeof issue.volume === 'object' ? (issue.volume as any).year : issue.year;
+
   return (
-    <Card className="flex flex-col h-full hover:shadow-lg transition-shadow border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden">
-      <div className="aspect-[3/4] bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 relative">
-        {issue.coverImage ? (
-          <img src={issue.coverImage} alt={issue.title} className="w-full h-full object-cover" />
+    <Card className="flex flex-col h-full hover:shadow-xl transition-all duration-300 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden group">
+      <Link href={`/issues/${issue.id}`} className="aspect-[3/4] bg-slate-900 border-b border-slate-200 dark:border-slate-800 relative block overflow-hidden">
+        {issue.coverImage || (issue as any).cover_image_url ? (
+          <img src={issue.coverImage || (issue as any).cover_image_url} alt={issue.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-slate-400 font-serif">No Cover</div>
+          <IssueCoverPlaceholder
+            volume={volNumber}
+            issueNumber={issueNum}
+            year={year}
+            title={issue.title}
+            className="group-hover:scale-105 transition-transform duration-500"
+          />
         )}
-      </div>
+      </Link>
       <CardHeader className="p-4">
         <div className="text-xs text-slate-500 mb-1">
           Vol. {typeof issue.volume === 'object' ? (issue.volume as any).volume_number : issue.volume || '?'} No. {(issue as any).issue_number || issue.number || '?'} ({typeof issue.volume === 'object' ? (issue.volume as any).year : issue.year || '?'})
