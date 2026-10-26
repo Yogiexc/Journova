@@ -48,8 +48,9 @@ async function main() {
     // Safety: If the user already exists in production, do NOT clobber their existing password hash
     // unless explicitly instructed via FORCE_PASSWORD_RESET=true
     const existing = await prisma.user.findUnique({ where: { email: u.email } });
-    const updateData: any = { status: UserStatus.ACTIVE };
-    if (process.env.FORCE_PASSWORD_RESET === 'true' || !existing) {
+    const updateData: { status: UserStatus; password_hash?: string } = { status: UserStatus.ACTIVE };
+    
+    if (existing && process.env.FORCE_PASSWORD_RESET === 'true') {
       updateData.password_hash = hash;
     }
 
