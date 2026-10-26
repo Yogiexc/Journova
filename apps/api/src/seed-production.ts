@@ -24,25 +24,30 @@ async function main() {
     roleMap[r.name] = createdRole;
   }
 
-  // 2. Default Users
-  const defaultPassword = 'Password123!';
-  const passwordHash = await argon2.hash(defaultPassword);
+  // 2. Users (Admin vs Ephemeral Sandbox Personas)
+  const demoPassword = 'Password123!';
+  const demoPasswordHash = await argon2.hash(demoPassword);
+
+  // In production, ADMIN_INITIAL_PASSWORD should be set via environment variable
+  const adminPassword = process.env.ADMIN_INITIAL_PASSWORD || 'Password123!';
+  const adminPasswordHash = await argon2.hash(adminPassword);
 
   const initialUsers = [
-    { name: 'Super Admin', email: 'admin@journova.com', role: 'ADMIN' },
-    { name: 'Tono Editor', email: 'editor@test.com', role: 'EDITOR' },
-    { name: 'Siti Reviewer', email: 'reviewer@test.com', role: 'REVIEWER' },
-    { name: 'Budi Author', email: 'author@test.com', role: 'AUTHOR' },
-    { name: 'Dr. Sarah Connor', email: 'sarah.author@test.com', role: 'AUTHOR' },
-    { name: 'Prof. Alan Turing', email: 'alan.reviewer@test.com', role: 'REVIEWER' },
+    { name: 'Super Admin', email: 'admin@journova.com', role: 'ADMIN', is_admin: true },
+    { name: 'Tono Editor', email: 'editor@test.com', role: 'EDITOR', is_admin: false },
+    { name: 'Siti Reviewer', email: 'reviewer@test.com', role: 'REVIEWER', is_admin: false },
+    { name: 'Budi Author', email: 'author@test.com', role: 'AUTHOR', is_admin: false },
+    { name: 'Dr. Sarah Connor', email: 'sarah.author@test.com', role: 'AUTHOR', is_admin: false },
+    { name: 'Prof. Alan Turing', email: 'alan.reviewer@test.com', role: 'REVIEWER', is_admin: false },
   ];
 
   const userMap: Record<string, any> = {};
   for (const u of initialUsers) {
+    const hash = u.is_admin ? adminPasswordHash : demoPasswordHash;
     const user = await prisma.user.upsert({
       where: { email: u.email },
-      update: { password_hash: passwordHash, status: UserStatus.ACTIVE },
-      create: { name: u.name, email: u.email, password_hash: passwordHash, status: UserStatus.ACTIVE },
+      update: { password_hash: hash, status: UserStatus.ACTIVE },
+      create: { name: u.name, email: u.email, password_hash: hash, status: UserStatus.ACTIVE },
     });
     userMap[u.email] = user;
 
@@ -166,6 +171,28 @@ async function main() {
           author_id: authorId,
           author_order: 1,
         },
+      });
+
+      // Attach Published PDF File & PublicationRecord
+      const editorUser = userMap['editor@test.com'];
+      const fileRecord = await prisma.file.create({
+        data: {
+          storage_provider: 'mock',
+          storage_key: `mock/publications/${createdArticle.slug}.pdf`,
+          original_name: `${createdArticle.slug}.pdf`,
+          mime_type: 'application/pdf',
+          size: 1024 * 512,
+          uploaded_by: editorUser ? editorUser.id : authorUser.id,
+        }
+      });
+
+      await prisma.publicationRecord.create({
+        data: {
+          article_id: createdArticle.id,
+          issue_id: issue.id,
+          file_id: fileRecord.id,
+          version: 1,
+        }
       });
     }
   }
