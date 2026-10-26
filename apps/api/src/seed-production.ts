@@ -44,9 +44,18 @@ async function main() {
   const userMap: Record<string, any> = {};
   for (const u of initialUsers) {
     const hash = u.is_admin ? adminPasswordHash : demoPasswordHash;
+    
+    // Safety: If the user already exists in production, do NOT clobber their existing password hash
+    // unless explicitly instructed via FORCE_PASSWORD_RESET=true
+    const existing = await prisma.user.findUnique({ where: { email: u.email } });
+    const updateData: any = { status: UserStatus.ACTIVE };
+    if (process.env.FORCE_PASSWORD_RESET === 'true' || !existing) {
+      updateData.password_hash = hash;
+    }
+
     const user = await prisma.user.upsert({
       where: { email: u.email },
-      update: { password_hash: hash, status: UserStatus.ACTIVE },
+      update: updateData,
       create: { name: u.name, email: u.email, password_hash: hash, status: UserStatus.ACTIVE },
     });
     userMap[u.email] = user;

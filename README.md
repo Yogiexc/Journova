@@ -55,17 +55,20 @@
 
 ---
 
-## 🔐 Seeded Sandbox / Demo Accounts
+## 🔐 Evaluation & Demo Roles
 
-> [!NOTE]
-> The accounts below are **ephemeral sample accounts seeded for development, peer-review demonstration, and academic evaluation**. In strict production deployments, production administrator credentials must be provisioned via environment variables (`ADMIN_INITIAL_PASSWORD`) and rotated with unique passwords.
+> [!IMPORTANT]
+> In accordance with secure deployment standards, **no default passwords are hardcoded or shared in public documentation**.
+> - For **local development & staging evaluation**, configure initial seed credentials in your private `.env` file (`ADMIN_INITIAL_PASSWORD` and `DEMO_USERS_PASSWORD`).
+> - For **academic evaluation / mentor access**, request ephemeral credentials directly from the repository maintainer.
+> - In **production deployments**, administrator credentials must be uniquely provisioned and managed via your cloud secrets manager.
 
-| Role | Demo Email | Initial Demo Password | Capabilities |
-|---|---|---|---|
-| **Super Admin** | `admin@journova.com` | `Password123!` *(Demo only)* | Complete system management, user role control, journal settings |
-| **Editor** | `editor@test.com` | `Password123!` *(Demo only)* | Submission triage, reviewer assignment, issue publication, DOI deposit |
-| **Reviewer** | `reviewer@test.com` | `Password123!` *(Demo only)* | Review assigned manuscripts, submit scores & review remarks |
-| **Author** | `author@test.com` | `Password123!` *(Demo only)* | Submit new manuscripts, track revisions, download proof copies |
+| Role | Evaluator Persona | Typical Scope & Workflow Capabilities |
+|---|---|---|
+| **Super Admin** | `admin@journova.com` | Complete platform governance, journal settings, and user role management |
+| **Editor** | `editor@test.com` | Submission triage, reviewer assignment, issue publication, DOI deposit |
+| **Reviewer** | `reviewer@test.com` | Double-blind manuscript review, scoring, and confidential remarks |
+| **Author** | `author@test.com` | Manuscript submission, revision tracking, and galley proof downloads |
 
 ---
 
