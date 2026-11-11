@@ -1,4 +1,4 @@
-# 📖 Journova
+# Journova
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/Yogiexc/Journova/main/apps/web/public/logo.png" width="220" alt="Journova Logo" />
@@ -11,12 +11,12 @@
 </p>
 
 <p align="center">
-  <a href="https://journova-web.vercel.app"><strong>Explore Live Demo »</strong></a>
+  <a href="https://journova-web.vercel.app"><strong>Explore Live Demo &raquo;</strong></a>
   <br />
   <a href="https://journova-api-production.up.railway.app/api/docs">API Documentation (Swagger)</a>
-  ·
+  &middot;
   <a href="https://github.com/Yogiexc/Journova/issues">Report Bug</a>
-  ·
+  &middot;
   <a href="https://github.com/Yogiexc/Journova/issues">Request Feature</a>
 </p>
 
@@ -33,7 +33,7 @@
 
 ---
 
-## 🌐 Live Production Deployments
+## Live Production Deployments
 
 | Component | Platform | Live URL | Status |
 |---|---|---|---|
@@ -43,7 +43,7 @@
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 - **Multi-Role Academic Workflow:** Specialized dashboards for **Author**, **Editor**, **Reviewer**, and **Super Admin**.
 - **End-to-End Peer Review:** Single-blind and double-blind peer review assignments, reviewer scoring, and editorial recommendations.
@@ -55,7 +55,7 @@
 
 ---
 
-## 🔐 Evaluation & Demo Roles
+## Evaluation & Demo Roles
 
 > [!IMPORTANT]
 > In accordance with secure deployment standards, **no default passwords are hardcoded or shared in public documentation**.
@@ -72,7 +72,7 @@
 
 ---
 
-## 🏗️ Project Architecture (Monorepo)
+## Project Architecture (Monorepo)
 
 ```text
 journova/
@@ -98,7 +98,7 @@ journova/
 
 ---
 
-## 🛠️ Local Development Setup
+## Local Development Setup
 
 ### 1. Clone & Install
 ```bash
@@ -128,7 +128,7 @@ npm run dev:web   # Runs Next.js on http://localhost:3000
 
 ---
 
-## 🧪 Testing & Code Quality
+## Testing & Code Quality
 
 ```bash
 # Run Core Test Suite (Storage Resolver, Path Traversal, Crossref, & Env Validation)
@@ -140,5 +140,6 @@ npm run build
 
 ---
 
-## 📄 License
+## License
 This project is licensed under the [MIT License](LICENSE).
+
