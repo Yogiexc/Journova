@@ -60,3 +60,23 @@
     @apply tracking-tight font-medium text-slate-900 dark:text-slate-100;
   }
 }
+
+@keyframes logo-shimmer {
+  0% {
+    filter: drop-shadow(0 0 0 rgba(212, 175, 55, 0));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 2px 8px rgba(212, 175, 55, 0.45));
+    transform: scale(1.02);
+  }
+  100% {
+    filter: drop-shadow(0 0 0 rgba(212, 175, 55, 0));
+    transform: scale(1);
+  }
+}
+
+.animate-logo-pulse {
+  animation: logo-shimmer 4s ease-in-out infinite;
+}
+

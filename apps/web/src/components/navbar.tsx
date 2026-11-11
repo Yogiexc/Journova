@@ -13,12 +13,19 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 w-full glass border-b">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-8">
         <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center group transition-transform hover:scale-[1.02]">
-            <img
-              src="/logo.png"
-              alt="Journova"
-              className="h-10 w-auto object-contain drop-shadow-sm"
-            />
+          <Link href="/" className="flex items-center group transition-all duration-300">
+            <div className="relative flex items-center justify-center p-1 rounded-lg transition-transform duration-300 group-hover:scale-105">
+              <img
+                src="/logo.png"
+                alt="Journova"
+                className="h-9 w-auto object-contain dark:hidden transition-all duration-300 group-hover:drop-shadow-[0_2px_8px_rgba(212,175,55,0.4)] animate-logo-pulse"
+              />
+              <img
+                src="/logo-white.png"
+                alt="Journova"
+                className="h-9 w-auto object-contain hidden dark:block transition-all duration-300 group-hover:drop-shadow-[0_2px_8px_rgba(212,175,55,0.6)] animate-logo-pulse"
+              />
+            </div>
           </Link>
           <div className="hidden md:flex gap-4">
             <Link href="/articles" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Articles</Link>

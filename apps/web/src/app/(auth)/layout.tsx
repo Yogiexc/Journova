@@ -13,8 +13,14 @@ export default function AuthLayout({
           <div className="h-full w-full bg-[url('https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=1500&auto=format&fit=crop')] bg-cover bg-center" />
         </div>
         
-        <Link href="/" className="relative z-10 inline-flex items-center group transition-transform hover:scale-[1.02]">
-          <img src="/logo.png" alt="Journova" className="h-12 w-auto object-contain drop-shadow" />
+        <Link href="/" className="relative z-10 inline-flex items-center group transition-all duration-300">
+          <div className="relative flex items-center justify-center p-1 rounded-lg transition-transform duration-300 group-hover:scale-105">
+            <img
+              src="/logo-white.png"
+              alt="Journova"
+              className="h-11 w-auto object-contain transition-all duration-300 group-hover:drop-shadow-[0_2px_12px_rgba(212,175,55,0.6)] animate-logo-pulse"
+            />
+          </div>
         </Link>
         
         <div className="relative z-10 max-w-md">
