@@ -85,6 +85,37 @@ export default function LoginPage() {
           {loading ? "Signing in..." : "Sign In"}
         </Button>
       </form>
+
+      {/* Demo Credentials Helper Pill */}
+      <div className="mt-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3 text-xs">
+        <div className="flex items-center justify-between">
+          <span className="font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[11px]">
+            Quick Demo Login
+          </span>
+          <span className="text-[10px] text-slate-500 font-mono">Password: Password123!</span>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { label: 'Editor', email: 'editor@test.com' },
+            { label: 'Reviewer', email: 'reviewer@test.com' },
+            { label: 'Author', email: 'author@test.com' },
+            { label: 'Admin', email: 'admin@journova.com' },
+          ].map((item) => (
+            <button
+              key={item.label}
+              type="button"
+              onClick={() => {
+                setEmail(item.email);
+                setPassword('Password123!');
+              }}
+              className="text-left px-2.5 py-1.5 rounded-lg border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-950 hover:border-amber-500/50 hover:bg-amber-500/5 transition-all text-slate-700 dark:text-slate-300"
+            >
+              <div className="font-medium text-[11px] text-slate-900 dark:text-white">{item.label}</div>
+              <div className="text-[10px] text-slate-500 truncate">{item.email}</div>
+            </button>
+          ))}
+        </div>
+      </div>
       
       <div className="mt-8 text-center text-sm text-slate-500">
         Don&apos;t have an account?{' '}
