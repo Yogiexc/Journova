@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { FileText, Download, Share2, BookOpen } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import { CitationBox } from '@/components/articles/CitationBox';
 
 async function getArticle(slug: string) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://journova-api-production.up.railway.app/api/v1';
@@ -148,6 +149,18 @@ export default async function ArticleDetailPage({ params }: { params: { slug: st
           )}
 
           <hr className="border-slate-200 dark:border-slate-800" />
+
+          {/* Dynamic Citation Generator */}
+          <CitationBox
+            title={article.title}
+            authors={article.authors}
+            journalName="Journova Journal of Digital Innovation"
+            year={article.issue?.volume?.year || new Date(article.published_at).getFullYear()}
+            volume={article.issue?.volume?.volume_number || 1}
+            issue={article.issue?.issue_number || 1}
+            doi={article.doi}
+            url={typeof window !== 'undefined' ? window.location.href : `https://journova-web.vercel.app/articles/${article.slug}`}
+          />
           
           <div className="p-6 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 text-center">
             <BookOpen className="w-8 h-8 mx-auto text-slate-400 mb-4" />
