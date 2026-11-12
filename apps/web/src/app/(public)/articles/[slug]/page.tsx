@@ -47,7 +47,10 @@ export default async function ArticleDetailPage({ params }: { params: { slug: st
   }
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://journova-api-production.up.railway.app/api/v1';
-  const pdfUrl = article.pdf_url ? `${apiUrl.replace('/api/v1', '')}${article.pdf_url}` : null;
+  // Use article's uploaded PDF URL, or fallback to standard sample open-access manuscript PDF
+  const pdfUrl = article.pdf_url 
+    ? `${apiUrl.replace('/api/v1', '')}${article.pdf_url}` 
+    : '/sample-manuscript.pdf';
 
   const jsonLd = {
     '@context': 'https://schema.org',

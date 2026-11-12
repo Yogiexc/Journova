@@ -1,0 +1,110 @@
+%PDF-1.4
+1 0 obj
+<<
+  /Type /Catalog
+  /Pages 2 0 R
+>>
+endobj
+2 0 obj
+<<
+  /Type /Pages
+  /Kids [3 0 R]
+  /Count 1
+>>
+endobj
+3 0 obj
+<<
+  /Type /Page
+  /Parent 2 0 R
+  /MediaBox [0 0 595.28 841.89]
+  /Contents 4 0 R
+  /Resources <<
+    /Font <<
+      /F1 5 0 R
+      /F2 6 0 R
+    >>
+  >>
+>>
+endobj
+4 0 obj
+<<
+  /Length 720
+>>
+stream
+BT
+/F1 18 Tf
+50 780 Td
+(JOURNOVA JOURNAL OF DIGITAL INNOVATION) Tj
+/F2 10 Tf
+0 -18 Td
+(Volume 1, Issue 1 | Open Access Research | ISSN 2988-1234) Tj
+0 -40 Td
+/F1 16 Tf
+(Deep Learning Optimizations for Automated Peer Reviewer Matching) Tj
+/F2 10 Tf
+0 -22 Td
+(Budi Santoso, Ph.D.  |  Institute of Advanced Computer Systems) Tj
+0 -20 Td
+(DOI: 10.5555/journova.v1.i1.deep-learning-automated-peer-reviewer-matching) Tj
+0 -35 Td
+/F1 12 Tf
+(ABSTRACT) Tj
+/F2 10 Tf
+0 -18 Td
+(Assigning qualified peer reviewers is a chronic editorial bottleneck in scientific) Tj
+0 -14 Td
+(publishing. We benchmark semantic embedding models on scholarly abstracts to increase) Tj
+0 -14 Td
+(assignment fairness, double-blind adherence, and submission triage efficiency.) Tj
+0 -30 Td
+/F1 12 Tf
+(1. INTRODUCTION) Tj
+/F2 10 Tf
+0 -18 Td
+(Traditional peer review distribution suffers from domain mismatch and editorial fatigue.) Tj
+0 -14 Td
+(Journova introduces an automated vector-matching pipeline designed to preserve reviewer) Tj
+0 -14 Td
+(anonymity while guaranteeing topical relevance and COPE-compliant conflict screening.) Tj
+0 -30 Td
+/F1 12 Tf
+(2. CONCLUSION & DATA AVAILABILITY) Tj
+/F2 10 Tf
+0 -18 Td
+(Our empirical evaluations confirm an 84% reduction in editorial cycle latency.) Tj
+0 -14 Td
+(Full benchmark datasets and Crossref DOI metadata are archived under CC BY 4.0.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<<
+  /Type /Font
+  /Subtype /Type1
+  /BaseFont /Helvetica-Bold
+>>
+endobj
+6 0 obj
+<<
+  /Type /Font
+  /Subtype /Type1
+  /BaseFont /Helvetica
+>>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000266 00000 n 
+0000001037 00000 n 
+0000001108 00000 n 
+trailer
+<<
+  /Size 7
+  /Root 1 0 R
+>>
+startxref
+1174
+%%EOF
