@@ -27,10 +27,11 @@ export function Navbar() {
               />
             </div>
           </Link>
-          <div className="hidden md:flex gap-4">
+          <div className="hidden md:flex gap-5">
             <Link href="/articles" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Articles</Link>
             <Link href="/issues" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Issues</Link>
             <Link href="/archives" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Archives</Link>
+            <Link href="/author-guidelines" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Guidelines</Link>
             <Link href="/editorial-board" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Editorial Team</Link>
           </div>
         </div>
