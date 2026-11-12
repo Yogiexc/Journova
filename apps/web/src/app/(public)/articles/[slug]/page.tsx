@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { FileText, Download, Share2, BookOpen } from 'lucide-react';
+import { Download, Share2, BookOpen } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { CitationBox } from '@/components/articles/CitationBox';
+import { ArticlePdfModal } from '@/components/articles/ArticlePdfModal';
 
 async function getArticle(slug: string) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://journova-api-production.up.railway.app/api/v1';
@@ -110,13 +111,15 @@ export default async function ArticleDetailPage({ params }: { params: { slug: st
             </div>
             
             <div className="flex gap-3 w-full sm:w-auto">
-              <Button className="w-full sm:w-auto gap-2 bg-slate-900 text-white hover:bg-slate-800">
-                <FileText className="w-4 h-4" /> Read Online
-              </Button>
+              <ArticlePdfModal
+                title={article.title}
+                pdfUrl={pdfUrl}
+                doi={article.doi}
+              />
               {pdfUrl && (
                 <Link href={pdfUrl} target="_blank">
                   <Button variant="outline" className="w-full sm:w-auto gap-2">
-                    <Download className="w-4 h-4" /> PDF
+                    <Download className="w-4 h-4" /> Download PDF
                   </Button>
                 </Link>
               )}
